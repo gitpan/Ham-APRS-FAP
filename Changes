@@ -1,0 +1,69 @@
+Revision history for Perl extension Ham::APRS::FAP.
+
+0.01  Wed Feb 16 15:58:47 2005
+	- original version; created by h2xs 1.22
+
+0.02  Sun Dec  9 22:10:04 EET 2007 - Hessu, OH7LZB
+	- Merged first bunch of aprs.fi enhancements:
+	- Return parser errors in the return hash, instead of printing
+	  to STDERR, so that they're more usable. See the 'resultcode'
+	  and 'resultmsg' hash entries - resultcode is a machine-readable
+	  error code, and 'resultmsg' is the human-readable equivalent.
+	- The result_messages() function returns a hash of all possible
+	  resultcodes and their plain english descriptions.
+	- Permit source callsigns to be in lower case
+	- Catch experimental packets (report error)
+	- Catch but ignore telemetry packets (report error)
+	- Accept broken uncompressed location packets with minute > 59.99
+	  in initial regexp parsing, and report a proper error code for them
+
+0.03  Sun Dec  9 23:47:19 EET 2007 - Hessu, OH7LZB
+	- Merged weather parsing code from aprs.fi branch, now parses
+	  a good majority of weather packets on the APRS-IS. The data goes
+	  in a new wx hash (see keys %{ $rethash->{'wx'} }).
+
+0.04  Sun Dec  9 23:52:14 EET 2007 - Hessu, OH7LZB
+	- Merged the rest of changes in the aprs.fi branch:
+	- The third argument of parseaprs(), $isax25, is now gone and
+	  replaced with an options hash, which knows two options
+	  'isax25' and 'accept_broken_mice'. They're used like this:
+	  
+	  my $ret = parseaprs(
+	  	$l, $p, 'accept_broken_mice' => 1, 'isax25' => 0
+	  );
+	  
+	  The hash is optional, so parseaprs($l, $p); will work for
+	  APRS-IS lines.
+	- The new 'accept_broken_mice' option enables parsing of mic-e
+	  packets from which some nonprintable characters have been
+	  removed. At least aprsd has a bug which replaces them with
+	  spaces, and possibly some other software then replaces
+	  multiple spaces with a single space. Some data is lost, but
+	  the position is still parseable.
+	- Catches more PHG data and the newer PHGR format. It's not really
+	  parsed, just passed back in 'phg' field of the hash.
+
+0.05  Wed Dec 12 17:04:31 EET 2007 - Hessu, OH7LZB
+	- Added a lot of unit test cases over the last couple days - over
+	  200 unique test items in 13 files. It isn't complete, though.
+	- Renamed from APRS::Parser to Ham::APRS::FAP (Fabulous
+	  APRS Parser) to better align with the CPAN hierarchy, and to
+	  avoid clashing with the existing Ham::APRS::Parser)
+
+0.06  Wed Dec 19 17:46:12 EET 2007 - Tapio, OH2KKU
+	- Relaxed non-AX.25 callsign checking, i.e. now accept any
+	  alphanumeric "callsign" (including a variable amount of
+	  '-' chars) with a maximum total length of 9 characters.
+	- Some cosmectic changes to unit conversions and comment
+	  clarifications.
+
+0.07  Wed Dec 19 23:26:52 EET 2007 - Hessu, OH7LZB
+	- Fixed tests. Tapio's changes removed the -0 from source callsigns
+	  with an SSID of 0, so I removed it from the destination callsigns
+	  too, and changed tests accordingly.
+
+1.00  Wed Dec 19 23:39:55 EET 2007 - Hessu, OH7LZB
+	- Some small POD documentation changes
+	- Bumped version number for initial public release
+
+
