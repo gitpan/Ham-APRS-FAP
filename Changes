@@ -66,4 +66,7 @@ Revision history for Perl extension Ham::APRS::FAP.
 	- Some small POD documentation changes
 	- Bumped version number for initial public release
 
+1.01  Thu Dec 20 00:05:59 EET 2007 - Hessu, OH7LZB
+	- Added Date::Calc in the Makefile.PM required modules list, so that
+	  CPAN installations will work properly
 

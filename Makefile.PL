@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'		=> 'Ham::APRS::FAP',
     'VERSION_FROM'	=> 'FAP.pm', # finds $VERSION
-    'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
+    'PREREQ_PM'		=> {'Date::Calc' => 5.00},
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM => 'FAP.pm', # retrieve abstract from module
        AUTHOR     => 'Tapio Sokura <tapio.sokura@iki.fi>') : ()),
