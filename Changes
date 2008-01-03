@@ -70,3 +70,8 @@ Revision history for Perl extension Ham::APRS::FAP.
 	- Added Date::Calc in the Makefile.PM required modules list, so that
 	  CPAN installations will work properly
 
+1.02  Fri Jan  4 01:29:47 EET 2008 - Hessu, OH7LZB
+	- Fixed bug: Rain over past 24 hours and since midnight were mixed
+	  up by the "normal" APRS weather packet parser (thanks DK7IN)
+	- Tuned POD documentation a little bit
+

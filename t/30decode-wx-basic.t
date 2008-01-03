@@ -27,9 +27,9 @@ ok($h{'wx'}->{'temp'}, "3.9", "incorrect temperature parsing");
 ok($h{'wx'}->{'humidity'}, 97, "incorrect humidity parsing");
 ok($h{'wx'}->{'pressure'}, "1012.5", "incorrect pressure parsing");
 
-ok($h{'wx'}->{'rain_24h'}, "0.5", "incorrect rain_24h parsing");
+ok($h{'wx'}->{'rain_24h'}, "1.0", "incorrect rain_24h parsing");
 ok($h{'wx'}->{'rain_1h'}, "0.3", "incorrect rain_1h parsing");
-ok($h{'wx'}->{'rain_midnight'}, "1.0", "incorrect rain_midnight parsing");
+ok($h{'wx'}->{'rain_midnight'}, "0.5", "incorrect rain_midnight parsing");
 
 ok($h{'wx'}->{'soft'}, "XRSW", "incorrect wx software id");
 

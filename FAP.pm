@@ -22,10 +22,10 @@ Ham::APRS::FAP - Finnish APRS Parser (Fabulous APRS Parser)
 
 =head1 ABSTRACT
 
-  This module is a fairly complete APRS parser. It parses normal,
-  mic-e and compressed location packets, NMEA location packets,
-  objects, items, messages and most weather packets. It is stable
-  and fast enough to parse the APRS-IS stream in real time.
+This module is a fairly complete APRS parser. It parses normal,
+mic-e and compressed location packets, NMEA location packets,
+objects, items, messages and most weather packets. It is stable
+and fast enough to parse the APRS-IS stream in real time.
 
 =head1 DESCRIPTION
 
@@ -33,21 +33,32 @@ Unless a debugging mode is enabled, all errors and warnings are reported
 through the API (as opposed to printing on STDERR or STDOUT), so that
 they can be reported nicely on the user interface of an application.
 This parser is not known to crash on invalid packets. It is used to power
-the http://aprs.fi/ web site.
+the L<http://aprs.fi/> web site.
 
 APRS features specifically NOT handled by this module:
- - special objects (area, signpost, etc)
- - network tunneling/third party packets
- - direction finding
- - telemetry
- - station capability queries
- - status reports (partially)
- - user defined data formats
+
+=over
+
+=item * special objects (area, signpost, etc)
+
+=item * network tunneling/third party packets
+
+=item * direction finding
+
+=item * telemetry
+
+=item * station capability queries
+
+=item * status reports (partially)
+
+=item * user defined data formats
+
+=back
 
 This module is based (on those parts that are implemented)
 on APRS specification 1.0.1.
 
-This module requires a reasonably recent Date::Calc module.
+This module requires a reasonably recent L<Date::Calc> module.
 
 =head1 EXPORT
 
@@ -101,7 +112,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 
 # Preloaded methods go here.
@@ -1904,10 +1915,10 @@ sub wx_parse($$$)
 	if ($s =~ s/r(\d{1,3})//) {
 		$w{'rain_1h'} = sprintf('%.1f', $1*$hinch_to_mm); # during last 1h
 	}
-	if ($s =~ s/P(\d{1,3})//) {
+	if ($s =~ s/p(\d{1,3})//) {
 		$w{'rain_24h'} = sprintf('%.1f', $1*$hinch_to_mm); # during last 24h
 	}
-	if ($s =~ s/p(\d{1,3})//) {
+	if ($s =~ s/P(\d{1,3})//) {
 		$w{'rain_midnight'} = sprintf('%.1f', $1*$hinch_to_mm); # since midnight
 	}
 	
@@ -3221,9 +3232,9 @@ __END__
 
 =head1 SEE ALSO
 
-APRS specification 1.0.1, http://www.tapr.org/aprs_working_group.html
+APRS specification 1.0.1, L<http://www.tapr.org/aprs_working_group.html>
 
-APRS addendums, e.g. http://web.usna.navy.mil/~bruninga/aprs/aprs11.html
+APRS addendums, e.g. L<http://web.usna.navy.mil/~bruninga/aprs/aprs11.html>
 
 The source code of this module - there are some undocumented features.
 
