@@ -82,3 +82,9 @@ Revision history for Perl extension Ham::APRS::FAP.
 	  timestamp varies depending on when the parsing code is run, since
 	  the timestamp in the APRS packet is not fully specified.
 
+1.11  Wed Mar 12 17:14:14 EET 2008 - Hessu, OH7LZB
+	- Removed accidentally forgotten dependency on Data::Dumper
+	- Documented dependency on the (standard) Math::Trig module
+	  in Makefile.PL
+	- Added t/53decode-tlm.t to the distribution, oops
+

@@ -71,7 +71,6 @@ use strict;
 use warnings;
 use Date::Calc qw(check_date Today Date_to_Time Add_Delta_YM Mktime);
 use Math::Trig;
-use Data::Dumper;
 
 require Exporter;
 
@@ -111,7 +110,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.10';
+our $VERSION = '1.11';
 
 
 # Preloaded methods go here.
