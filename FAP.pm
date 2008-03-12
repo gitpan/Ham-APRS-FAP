@@ -24,8 +24,8 @@ Ham::APRS::FAP - Finnish APRS Parser (Fabulous APRS Parser)
 
 This module is a fairly complete APRS parser. It parses normal,
 mic-e and compressed location packets, NMEA location packets,
-objects, items, messages and most weather packets. It is stable
-and fast enough to parse the APRS-IS stream in real time.
+objects, items, messages, telemetry and most weather packets. It is
+stable and fast enough to parse the APRS-IS stream in real time.
 
 =head1 DESCRIPTION
 
@@ -44,8 +44,6 @@ APRS features specifically NOT handled by this module:
 =item * network tunneling/third party packets
 
 =item * direction finding
-
-=item * telemetry
 
 =item * station capability queries
 
@@ -73,6 +71,7 @@ use strict;
 use warnings;
 use Date::Calc qw(check_date Today Date_to_Time Add_Delta_YM Mktime);
 use Math::Trig;
+use Data::Dumper;
 
 require Exporter;
 
@@ -112,7 +111,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.02';
+our $VERSION = '1.10';
 
 
 # Preloaded methods go here.
@@ -196,7 +195,10 @@ my %result_messages = (
 	'dx_inf_freq' => 'Invalid DX spot frequency',
 	'dx_no_dx' => 'No DX spot callsign found',
 	
+	'tlm_inv' => 'Invalid telemetry packet',
+	'tlm_large' => 'Too large telemetry value',
 	'tlm_unsupp' => 'Unsupported telemetry',
+	
 	'exp_unsupp' => 'Unsupported experimental'
 );
 
@@ -1220,7 +1222,7 @@ sub object_to_decimal($$$) {
 		comments_to_decimal(substr($packet, $locationoffset), $srccallsign, $rethash);
 	} else {
 		# possibly a weather object, try to parse
-		wx_parse(substr($packet, $locationoffset), $srccallsign, $rethash);
+		wx_parse(substr($packet, $locationoffset), $rethash);
 	}
 
 	return 1;
@@ -1315,6 +1317,10 @@ sub message_parse($$$) {
 			$rethash->{messageid} = $2;
 		} else {
 			$rethash->{message} = $message;
+		}
+		# catch telemetry messages
+		if ($destination eq $srccallsign && $message =~ /^(BITS|PARM|UNIT|EQNS)\./i) {
+			$rethash->{'type'} = 'telemetry-message';
 		}
 		return 1;
 	}
@@ -1866,7 +1872,7 @@ sub dx_parse($$$)
 	return 1;
 }
 
-# wx_parse($s, $sourcecall, $rethash)
+# wx_parse($s, $rethash)
 #
 # Parses a normal uncompressed weather report packet.
 #
@@ -1876,9 +1882,9 @@ sub fahrenheit_to_celsius($)
 	return ($_[0] - 32) / 1.8;
 }
 
-sub wx_parse($$$)
+sub wx_parse($$)
 {
-	my($s, $sourcecall, $rh) = @_;
+	my($s, $rh) = @_;
 	
 	my $initial = $s;
 	
@@ -2091,6 +2097,46 @@ sub wx_parse_peet_logging($$$)
 	}
 	
 	return 0;
+}
+
+# telemetry_parse($s, $rethash)
+#
+# Parses a telemetry packet.
+#
+
+sub telemetry_parse($$)
+{
+	my($s, $rh) = @_;
+	
+	my $initial = $s;
+	
+	my($seq, $v1, $v2, $v3, $v4, $v5, $bits);
+	my %t;
+	if ($s =~ s/^(\d+),(-|)(\d{1,6}|\d+\.\d+|\.\d+|),(-|)(\d{1,6}|\d+\.\d+|\.\d+|),(-|)(\d{1,6}|\d+\.\d+|\.\d+|),(-|)(\d{1,6}|\d+\.\d+|\.\d+|),(-|)(\d{1,6}|\d+\.\d+|\.\d+|),([01]{0,8})//) {
+		$t{'seq'} = $1;
+		my @vals = ( "$2$3", "$4$5", "$6$7", "$8$9", "$10$11" );
+		for (my $i = 0; $i <= $#vals; $i++) {
+			$vals[$i] = $vals[$i] eq '' ? 0 : sprintf("%.2f", $vals[$i]);
+			if ($vals[$i] >= 999999 || $vals[$i] <= -999999) {
+				a_err($rh, 'tlm_large');
+				return 0;
+			}
+		}
+		$t{'vals'} = \@vals;
+		$t{'bits'} = $12;
+		# expand bits to 8 bits if some are missing
+		if ((my $l = length($t{'bits'})) < 8) {
+			$t{'bits'} .= '0' x (8-$l);
+		}
+	} else {
+		# todo: return an error code
+		a_err($rh, 'tlm_inv');
+		return 0;
+	}
+	
+	$rh->{'telemetry'} = \%t;
+	#warn "ok: " . Dumper(\%t);
+	return 1;
 }
 
 =head1 parseaprs($packet, $hashref, %options)
@@ -2327,7 +2373,7 @@ sub parseaprs($$;%) {
 						comments_to_decimal(substr($body, 19), $srccallsign, $rethash);
 					} else {
 						#warn "maybe a weather report?\n" . substr($body, 19) . "\n";
-						wx_parse(substr($body, 19), $srccallsign, $rethash);
+						wx_parse(substr($body, 19), $rethash);
 					}
 				}
 			} elsif ($poschar eq '!') {
@@ -2398,7 +2444,7 @@ sub parseaprs($$;%) {
 	} elsif ($packettype eq '_') {
 		if ($body =~ /_(\d{8})c[\- \.\d]{1,3}s[\- \.\d]{1,3}/) {
 			$rethash->{type} = "wx";
-			$retval = wx_parse(substr($body, 9), $srccallsign, $rethash);
+			$retval = wx_parse(substr($body, 9), $rethash);
 		} else {
 			a_err($rethash, 'wx_unsupp', 'Positionless');
 			$retval = 0;
@@ -2406,8 +2452,8 @@ sub parseaprs($$;%) {
 		
 	# Telemetry
 	} elsif ($body =~ /^T#(.*?),(.*)$/) {
-		a_err($rethash, 'tlm_unsupp');
-		$retval = 0;
+		$rethash->{type} = "telemetry";
+		$retval = telemetry_parse(substr($body, 2), $rethash);
 		
 	# DX spot
 	} elsif ($body =~ /^DX\s+de\s+(.*?)\s*[:>]\s*(.*)$/i) {
@@ -3248,7 +3294,7 @@ Heikki Hannikainen, OH7LZB E<lt>hessu@hes.iki.fiE<gt>
 
 Copyright 2005-2007 by Tapio Sokura
 
-Copyright 2007 by Heikki Hannikainen
+Copyright 2007-2008 by Heikki Hannikainen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

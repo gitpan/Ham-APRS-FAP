@@ -1,11 +1,11 @@
-Ham::APRS::FAP version 1.02
+Ham::APRS::FAP version 1.10
 ===========================
 
 FAP - Finnish APRS Parser (Fabulous APRS Parser)
 
 This module is a fairly complete APRS parser implemented in pure Perl.
 It parses normal, mic-e and compressed location packets, NMEA location
-packets, objects, items, messages and most weather packets. It is
+packets, objects, items, messages, telemetry and most weather packets. It is
 stable and fast enough to parse the APRS-IS stream in real time.
 
 Unless a debugging mode is enabled, all errors and warnings are reported
@@ -18,7 +18,6 @@ APRS features specifically NOT handled by this module:
  - special objects (area, signpost, etc)
  - network tunneling/third party packets
  - direction finding
- - telemetry
  - station capability queries
  - status reports (partially)
  - user defined data formats
@@ -52,7 +51,7 @@ THINGS TO DO
 COPYRIGHT AND LICENCE
 
 Copyright (C) 2005-2007 Tapio Sokura
-Copyright (C) 2007 Heikki Hannikainen
+Copyright (C) 2007-2008 Heikki Hannikainen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

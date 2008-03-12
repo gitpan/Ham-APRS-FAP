@@ -75,3 +75,10 @@ Revision history for Perl extension Ham::APRS::FAP.
 	  up by the "normal" APRS weather packet parser (thanks DK7IN)
 	- Tuned POD documentation a little bit
 
+1.10  Wed Mar 12 16:23:20 EET 2008 - Hessu, OH7LZB
+	- Committed APRS telemetry parsing code (has been tested on aprs.fi
+	  for quite some time now)
+	- Disabled timestamp checking in t/41decode-object.t - the parsed
+	  timestamp varies depending on when the parsing code is run, since
+	  the timestamp in the APRS packet is not fully specified.
+

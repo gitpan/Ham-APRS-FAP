@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 12 };
+BEGIN { plan tests => 11 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2KKU-1";
@@ -19,8 +19,13 @@ ok($h{'resultcode'}, undef, "wrong result code");
 ok($h{'type'}, 'object', "wrong packet type");
 
 ok($h{'objectname'}, 'SRAL HQ  ', "wrong object name");
-ok($h{'timestamp'}, 1197278820, "wrong timestamp");
 ok($h{'alive'}, 1, "wrong alive bit");
+
+# timestamp test has been disabled, because it cannot be
+# done this way - the timestamp in the packet is not
+# fully specified, so the resulting value will depend
+# on the time the parsing is executed.
+# ok($h{'timestamp'}, 1197278820, "wrong timestamp");
 
 ok($h{'symboltable'}, 'S', "incorrect symboltable parsing");
 ok($h{'symbolcode'}, 'a', "incorrect symbolcode parsing");
