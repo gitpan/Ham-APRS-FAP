@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 24 };
+BEGIN { plan tests => 25 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH7FDN";
@@ -42,6 +42,7 @@ ok($h{'messaging'}, '0', "incorrect messaging bit parsing");
 
 ok(sprintf('%.4f', $h{'latitude'}), "62.8920", "incorrect latitude parsing");
 ok(sprintf('%.4f', $h{'longitude'}), "27.6578", "incorrect longitude parsing");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution");
 
 ok(sprintf('%.2f', $h{'speed'}), "18.52", "incorrect speed");
 ok(sprintf('%.0f', $h{'course'}), "36", "incorrect course");

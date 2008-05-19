@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 27 };
+BEGIN { plan tests => 29 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2RDP-1";
@@ -18,6 +18,7 @@ ok($h{'srccallsign'}, $srccall, "incorrect source callsign parsing");
 ok($h{'dstcallsign'}, $dstcall, "incorrect destination callsign parsing");
 ok(sprintf('%.4f', $h{'latitude'}), "60.5058", "incorrect latitude parsing (northern)");
 ok(sprintf('%.4f', $h{'longitude'}), "24.7318", "incorrect longitude parsing (eastern)");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution");
 
 ok($h{'wx'}->{'wind_direction'}, 150, "incorrect wind direction parsing");
 ok($h{'wx'}->{'wind_speed'}, "0.9", "incorrect wind speed parsing");
@@ -42,6 +43,7 @@ $retval = parseaprs($aprspacket, \%h);
 ok($retval, 1, "failed to parse second basic wx packet");
 ok(sprintf('%.4f', $h{'latitude'}), "60.4130", "incorrect latitude parsing (northern)");
 ok(sprintf('%.4f', $h{'longitude'}), "25.0662", "incorrect longitude parsing (eastern)");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution");
 
 ok($h{'wx'}->{'wind_direction'}, 156, "incorrect wind direction parsing");
 ok($h{'wx'}->{'wind_speed'}, "0.4", "incorrect wind speed parsing");

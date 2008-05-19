@@ -1,4 +1,4 @@
-Ham::APRS::FAP version 1.11
+Ham::APRS::FAP version 1.12
 ===========================
 
 FAP - Finnish APRS Parser (Fabulous APRS Parser)
@@ -46,11 +46,13 @@ This module is documented in perldoc format - see 'perldoc Ham::APRS::FAP'
 THINGS TO DO
 
  - Adding more tests
- - Telemetry and other missing packet formats
+ - Implement more of the missing features
+ - Implement some more packet construction methods, passing data in a
+   hash instead of a long list of parameters
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2005-2007 Tapio Sokura
+Copyright (C) 2005-2008 Tapio Sokura
 Copyright (C) 2007-2008 Heikki Hannikainen
 
 This library is free software; you can redistribute it and/or modify

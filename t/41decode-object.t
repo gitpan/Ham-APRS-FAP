@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 11 };
+BEGIN { plan tests => 12 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2KKU-1";
@@ -32,6 +32,7 @@ ok($h{'symbolcode'}, 'a', "incorrect symbolcode parsing");
 
 ok(sprintf('%.4f', $h{'latitude'}), "60.2305", "incorrect latitude parsing (northern)");
 ok(sprintf('%.4f', $h{'longitude'}), "24.8790", "incorrect longitude parsing (eastern)");
+ok(sprintf('%.3f', $h{'posresolution'}), "0.291", "incorrect position resolution");
 ok($h{'phg'}, undef, "incorrect PHG parsing");
 ok($h{'comment'}, $comment, "incorrect comment parsing");
 

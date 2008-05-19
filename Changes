@@ -88,3 +88,12 @@ Revision history for Perl extension Ham::APRS::FAP.
 	  in Makefile.PL
 	- Added t/53decode-tlm.t to the distribution, oops
 
+1.12  Mon May 19 18:13:54 EEST 2008 - Tapio, OH2KKU, and Hessu, OH7LZB
+	- !DAO! extension support (Datum and additional position resolution
+	  for uncompressed and mic-e packets) implemented by Tapio.
+	- Added position resolution reporting in meters (posresolution) to
+	  all packets containing a location and corresponding tests. Also
+	  added a quick test for position ambiguity parsing.
+	- Additional unit tests and CPAN distribution cleanups.
+	- Added an example script in the examples/ subdirectory.
+

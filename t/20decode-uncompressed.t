@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 15 };
+BEGIN { plan tests => 22 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $comment = "/RELAY,WIDE, OH2AP Jarvenpaa";
@@ -20,6 +20,7 @@ ok($h{'srccallsign'}, $srccall, "incorrect source callsign parsing");
 ok($h{'dstcallsign'}, $dstcall, "incorrect destination callsign parsing");
 ok(sprintf('%.4f', $h{'latitude'}), "60.4752", "incorrect latitude parsing (northern)");
 ok(sprintf('%.4f', $h{'longitude'}), "25.0947", "incorrect longitude parsing (eastern)");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution");
 ok($h{'phg'}, $phg, "incorrect PHG parsing");
 ok($h{'comment'}, $comment, "incorrect comment parsing");
 
@@ -38,4 +39,16 @@ $retval = parseaprs($aprspacket, \%h);
 ok($retval, 1, "failed to parse a basic uncompressed packet (southwest)");
 ok(sprintf('%.4f', $h{'latitude'}), "-60.4752", "incorrect latitude parsing (southern)");
 ok(sprintf('%.4f', $h{'longitude'}), "-25.0947", "incorrect longitude parsing (western)");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution");
+
+# and the same, with ambiguity
+%h = (); # clean up
+$aprspacket = "$srccall>$dstcall,OH2RDG*,WIDE:!602 .  S/0250 .  W#PHG$phg$comment";
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse a basic ambiguity packet (southwest)");
+ok(sprintf('%.4f', $h{'latitude'}), "-60.4167", "incorrect latitude parsing (southern)");
+ok(sprintf('%.4f', $h{'longitude'}), "-25.0833", "incorrect longitude parsing (western)");
+ok(sprintf('%.0f', $h{'posambiguity'}), "3", "incorrect position ambiguity");
+ok(sprintf('%.0f', $h{'posresolution'}), "18520", "incorrect position resolution");
 

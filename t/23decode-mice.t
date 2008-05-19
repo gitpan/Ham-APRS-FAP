@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 47 };
+BEGIN { plan tests => 49 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH7LZB-13";
@@ -43,6 +43,7 @@ ok($h{'messaging'}, undef, "incorrect messaging bit parsing");
 
 ok(sprintf('%.4f', $h{'latitude'}), "-38.2560", "incorrect latitude parsing");
 ok(sprintf('%.4f', $h{'longitude'}), "145.1860", "incorrect longitude parsing");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution");
 
 # check for undefined value, when there is no such data in the packet
 ok($h{'speed'}, 0, "incorrect speed");
@@ -86,6 +87,7 @@ ok($h{'mbits'}, "110", "incorrect mic-e message type bits");
 
 ok(sprintf('%.4f', $h{'latitude'}), "41.7877", "incorrect latitude parsing");
 ok(sprintf('%.4f', $h{'longitude'}), "-71.4202", "incorrect longitude parsing");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution");
 
 # check for undefined value, when there is no such data in the packet
 ok(sprintf("%.2f", $h{'speed'}), "105.56", "incorrect speed");
