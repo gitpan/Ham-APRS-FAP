@@ -108,7 +108,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.12';
+our $VERSION = '1.13';
 
 
 # Preloaded methods go here.
@@ -196,7 +196,9 @@ my %result_messages = (
 	'tlm_large' => 'Too large telemetry value',
 	'tlm_unsupp' => 'Unsupported telemetry',
 	
-	'exp_unsupp' => 'Unsupported experimental'
+	'exp_unsupp' => 'Unsupported experimental',
+	
+	'sym_inv_table' => 'Invalid symbol table or overlay',
 );
 
 =over
@@ -1134,10 +1136,10 @@ sub _nmea_to_decimal($$$$) {
 # Parse the possible APRS data extension
 # as well as comment
 sub _comments_to_decimal($$$) {
-        my $packet = shift @_;
-        my $srccallsign = shift @_;
-        my $rethash = shift @_;
-
+	my $packet = shift @_;
+	my $srccallsign = shift @_;
+	my $rethash = shift @_;
+	
 	# First check the possible APRS data extension,
 	# immediately following the packet
 	my $rest = $packet;
@@ -1165,14 +1167,14 @@ sub _comments_to_decimal($$$) {
 			}
 			$rest = substr($rest, 7);
 
-		} elsif ($rest =~ /^PHG(\d[\x30-\x7e]\d\d[1-9A-Z])\//o) {
+		} elsif ($rest =~ /^PHG(\d[\x30-\x7e]\d\d[0-9A-Z])\//o) {
 			# PHGR
-			$rethash->{'phg'} = $1 if ($1 ne '00000');
+			$rethash->{'phg'} = $1;
 			$rest = substr($rest, 8);
 
 		} elsif ($rest =~ /^PHG(\d[\x30-\x7e]\d\d)/o) {
 			# don't do anything fancy with PHG, just store it
-			$rethash->{'phg'} = $1 if ($1 ne '0000');
+			$rethash->{'phg'} = $1;
 			$rest = substr($rest, 7);
 
 		} elsif ($rest =~ /^RNG(\d{4})/o) {
@@ -1228,7 +1230,7 @@ sub _object_to_decimal($$$) {
 
 	# Parse the object up to the location
 	my $timestamp = undef;
-	if ($packet =~ /^;([\x20-\x7e]{9})(\*|_)(\d{6})(z|h)/o) {
+	if ($packet =~ /^;([\x20-\x7e]{9})(\*|_)(\d{6})(z|h|\/)/o) {
 		# hash member 'objectname' signals an object
 		$rethash->{objectname} = $1;
 		if ($2 eq '*') {
@@ -1365,6 +1367,11 @@ sub _message_parse($$$) {
 			$rethash->{messageack} = $1;
 			return 1;
 		}
+		# check whether this is an ack
+		if ($message =~ /^rej([A-Za-z0-9}]{1,5})\s*$/o) {
+			$rethash->{messagerej} = $1;
+			return 1;
+		}
 		# separate message-id from the body, if present
 		if ($message =~ /^([^{]*)\{([A-Za-z0-9}]{1,5})\s*$/o) {
 			$rethash->{message} = $1;
@@ -1373,7 +1380,7 @@ sub _message_parse($$$) {
 			$rethash->{message} = $message;
 		}
 		# catch telemetry messages
-		if ($destination eq $srccallsign && $message =~ /^(BITS|PARM|UNIT|EQNS)\./i) {
+		if ($message =~ /^(BITS|PARM|UNIT|EQNS)\./i) {
 			$rethash->{'type'} = 'telemetry-message';
 		}
 		return 1;
@@ -1461,10 +1468,11 @@ sub _normalpos_to_decimal($$$) {
 	my $lat_min = undef;
 	my $issouth = 0;
 	my $iswest = 0;
-	if ($packet =~ /^(\d{2})([0-7 ][0-9 ]\.[0-9 ]{2})([NnSs])([\/\\A-Z0-9])(\d{3})([0-7 ][0-9 ]\.[0-9 ]{2})([EeWw])([\x21-\x7b\x7d])/o) {
+	my $symboltable;
+	if ($packet =~ /^(\d{2})([0-7 ][0-9 ]\.[0-9 ]{2})([NnSs])(.)(\d{3})([0-7 ][0-9 ]\.[0-9 ]{2})([EeWw])([\x21-\x7b\x7d])/o) {
 		my $sind = uc($3);
 		my $wind = uc($7);
-		$rethash->{symboltable} = $4;
+		$symboltable = $4;
 		$rethash->{symbolcode} = $8;
 		if ($sind eq 'S') {
 			$issouth = 1;
@@ -1480,7 +1488,13 @@ sub _normalpos_to_decimal($$$) {
 		_a_err($rethash, 'loc_inv');
 		return 0;
 	}
-
+	
+	if ($symboltable !~ /^[\/\\A-Z0-9]$/) {
+		_a_err($rethash, 'sym_inv_table');
+		return 0;
+	}
+	$rethash->{'symboltable'} = $symboltable;
+	
 	# Check the degree values
 	if ($lat_deg > 89 || $lon_deg > 179) {
 		_a_err($rethash, 'loc_large');
@@ -1590,6 +1604,7 @@ sub _mice_to_decimal($$$$$) {
 	# check the information field (longitude, course, speed and
 	# symbol table and code are checked). Not bullet proof..
 	my $mice_fixed;
+	my $symboltable = substr($packet, 7, 1);
 	if ($packet !~ /^[\x26-\x7f][\x26-\x61][\x1c-\x7f]{2}[\x1c-\x7d][\x1c-\x7f][\x21-\x7b\x7d][\/\\A-Z0-9]/o) {
 		# If the accept_broken_mice option is given, check for a known
 		# corruption in the packets and try to fix it - aprsd is
@@ -1602,7 +1617,11 @@ sub _mice_to_decimal($$$$$) {
 		    && $packet =~ s/^([\x26-\x7f][\x26-\x61][\x1c-\x7f]{2})\x20([\x21-\x7b\x7d][\/\\A-Z0-9])(.*)/$1\x20\x20$2$3/o) {
 			$mice_fixed = 1;
 		} else {
-			_a_err($rethash, 'mice_inv_info');
+			if ($symboltable !~ /^[\/\\A-Z0-9]$/) {
+				_a_err($rethash, 'sym_inv_table');
+			} else {
+				_a_err($rethash, 'mice_inv_info');
+			}
 			return 0;
 		}
 	}
@@ -1747,7 +1766,7 @@ sub _mice_to_decimal($$$$$) {
 
 	# save the symbol table and code
 	$rethash->{symbolcode} = substr($packet, 6, 1);
-	$rethash->{symboltable} = substr($packet, 7, 1);
+	$rethash->{symboltable} = $symboltable;
 
 	# Check for possible altitude and comment data.
 	# It is base-91 coded and in format "xxx}" where
@@ -2609,6 +2628,7 @@ sub parseaprs($$;%) {
 		my $pos = index($body, '!');
 		if ($pos >= 0 && $pos <= 39) {
 			$rethash->{type} = "location";
+			$rethash->{messaging} = 0;
 			my $pchar = substr($body, $pos + 1, 1);
 			if ($pchar =~ /^[\/\\A-Za-j]$/o) {
 				# compressed position
@@ -2617,7 +2637,7 @@ sub parseaprs($$;%) {
 					# check the APRS data extension and comment,
 					# if not weather data
 					if ($retval == 1 && $rethash->{symbolcode} ne '_') {
-						_comments_to_decimal(substr($body, 13), $srccallsign, $rethash);
+						_comments_to_decimal(substr($body, $pos + 14), $srccallsign, $rethash);
 					}
 				}
 			} elsif ($pchar =~ /^\d$/io) {
@@ -2627,7 +2647,7 @@ sub parseaprs($$;%) {
 					# check the APRS data extension and comment,
 					# if not weather data
 					if ($retval == 1 && $rethash->{symbolcode} ne '_') {
-						_comments_to_decimal(substr($body, 19), $srccallsign, $rethash);
+						_comments_to_decimal(substr($body, $pos + 20), $srccallsign, $rethash);
 					}
 				}
 			}
@@ -3453,9 +3473,9 @@ Heikki Hannikainen, OH7LZB E<lt>hessu@hes.iki.fiE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2005-2008 by Tapio Sokura
+Copyright 2005-2009 by Tapio Sokura
 
-Copyright 2007-2008 by Heikki Hannikainen
+Copyright 2007-2009 by Heikki Hannikainen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

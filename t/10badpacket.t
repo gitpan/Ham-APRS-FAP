@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 13 };
+BEGIN { plan tests => 15 };
 use Ham::APRS::FAP qw(parseaprs);
 
 #
@@ -50,3 +50,13 @@ ok($retval, 0, "succeeded to parse a packet with bad digi call");
 ok($h{'resultcode'}, 'digicall_badchars', "wrong result code");
 ok($h{'type'}, undef, "found packet type for bad digi call");
 
+#
+# bad symbol table  #########
+#
+
+$aprspacket = "ASDF>DSALK,OH2RDG*,WIDE:!6028.51N,02505.68E#";
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 0, "succeeded to parse a packet with bad symbol table");
+ok($h{'resultcode'}, 'sym_inv_table', "wrong result code");

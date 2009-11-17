@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 49 };
+BEGIN { plan tests => 49 + 8};
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH7LZB-13";
@@ -15,7 +15,7 @@ my $aprspacket = "$header:$body";
 my %h;
 my $retval = parseaprs($aprspacket, \%h);
 
-ok($retval, 1, "failed to parse a moving target's uncompressed packet");
+ok($retval, 1, "failed to parse a non-moving target's mic-e packet");
 ok($h{'srccallsign'}, $srccall, "incorrect source callsign parsing");
 ok($h{'dstcallsign'}, $dstcall, "incorrect destination callsign parsing");
 
@@ -58,7 +58,7 @@ $aprspacket = "$header:$body";
 %h = ();
 $retval = parseaprs($aprspacket, \%h);
 
-ok($retval, 1, "failed to parse a moving target's uncompressed packet");
+ok($retval, 1, "failed to parse a moving target's mic-e");
 ok($h{'srccallsign'}, $srccall, "incorrect source callsign parsing");
 ok($h{'dstcallsign'}, $dstcall, "incorrect destination callsign parsing");
 
@@ -93,4 +93,29 @@ ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution
 ok(sprintf("%.2f", $h{'speed'}), "105.56", "incorrect speed");
 ok($h{'course'}, "35", "incorrect course");
 ok($h{'altitude'}, "6", "incorrect altitude");
+
+#
+#### test decoding a packet which has an invalid symbol table (',')
+#### configured
+#
+ 
+$srccall = "OZ2BRN-4";
+$dstcall = "5U2V08";
+$header = "$srccall>$dstcall,OZ3RIN-3,OZ4DIA-2*,WIDE2-1,qAR,DB0KUE";
+$body = "`'O<l!{,,\"4R}";
+$aprspacket = "$header:$body";
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 0, "parsed an unparseable mic-e packet");
+ok($h{'resultcode'}, 'sym_inv_table', "wrong result code");
+ok($h{'srccallsign'}, $srccall, "incorrect source callsign parsing");
+ok($h{'dstcallsign'}, $dstcall, "incorrect destination callsign parsing");
+
+ok($h{'header'}, $header, "incorrect header parsing");
+ok($h{'body'}, $body, "incorrect body parsing");
+ok($h{'type'}, 'location', "incorrect packet type parsing");
+
+ok($h{'comment'}, undef, "incorrect comment parsing");
+
 

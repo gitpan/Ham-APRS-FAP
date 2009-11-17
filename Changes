@@ -97,3 +97,12 @@ Revision history for Perl extension Ham::APRS::FAP.
 	- Additional unit tests and CPAN distribution cleanups.
 	- Added an example script in the examples/ subdirectory.
 
+1.13  Tue Nov 17 12:24:07 EET 2009 - Tapio, OH2KKU, and Hessu, OH7LZB
+	- Allow anyone to update telemetry parameters, skip the source
+	  callsign check
+	- Allow a PHG of 0000 for deleting PHG
+	- Added new error code sym_inv_table for invalid symbol table char
+	- Added local time zone parsing to object timestamps
+	- Fixed comments parsing for last resort !-location packets
+	- Parse APRS message rejects
+

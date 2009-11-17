@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 22 };
+BEGIN { plan tests => 27 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $comment = "/RELAY,WIDE, OH2AP Jarvenpaa";
@@ -52,3 +52,13 @@ ok(sprintf('%.4f', $h{'longitude'}), "-25.0833", "incorrect longitude parsing (w
 ok(sprintf('%.0f', $h{'posambiguity'}), "3", "incorrect position ambiguity");
 ok(sprintf('%.0f', $h{'posresolution'}), "18520", "incorrect position resolution");
 
+# and the same with "last resort" !-location parsing
+%h = (); # clean up
+$aprspacket = "$srccall>$dstcall,OH2RDG*,WIDE:hoponassualku!6028.51S/02505.68W#PHG$phg$comment";
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse an uncompressed packet (last resort)");
+ok(sprintf('%.4f', $h{'latitude'}), "-60.4752", "incorrect latitude parsing (last resort)");
+ok(sprintf('%.4f', $h{'longitude'}), "-25.0947", "incorrect longitude parsing (last resort)");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution (last resort)");
+ok($h{'comment'}, $comment, "incorrect comment parsing (last resort)");
