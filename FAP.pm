@@ -108,7 +108,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.14';
+our $VERSION = '1.15';
 
 
 # Preloaded methods go here.
@@ -927,6 +927,8 @@ sub _nmea_to_decimal($$$$) {
 
 	# checksum ok or not provided
 
+	$rethash->{'format'} = 'nmea';
+	
 	# use a dot as a default symbol if one is not defined in
 	# the destination callsign
 	my ($symtable, $symcode) = _get_symbol_fromdst($dstcallsign);

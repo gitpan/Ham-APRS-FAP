@@ -118,3 +118,6 @@ Revision history for Perl extension Ham::APRS::FAP.
 	- Added test for positionless wx packets
 	- Added position packet format in hash ('format' => 'compressed')
 
+1.15  Tue May  4 20:44:31 EEST 2010 - Hessu, OH7LZB
+	- Added a couple of missing tests and 'format' => 'nmea'
+

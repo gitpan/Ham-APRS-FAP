@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 27 + 5 };
+BEGIN { plan tests => 28 + 5 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $comment = "/RELAY,WIDE, OH2AP Jarvenpaa";
@@ -16,6 +16,7 @@ my %h;
 my $retval = parseaprs($aprspacket, \%h);
 
 ok($retval, 1, "failed to parse a basic uncompressed packet (northeast)");
+ok($h{'format'}, 'uncompressed', "incorrect packet format parsing");
 ok($h{'srccallsign'}, $srccall, "incorrect source callsign parsing");
 ok($h{'dstcallsign'}, $dstcall, "incorrect destination callsign parsing");
 ok(sprintf('%.4f', $h{'latitude'}), "60.4752", "incorrect latitude parsing (northern)");

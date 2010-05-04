@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 14 };
+BEGIN { plan tests => 15 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH7LZB-11";
@@ -23,6 +23,7 @@ ok($retval, 1, "failed to parse a GPRMC NMEA packet");
 ok($h{'header'}, $header, "incorrect header parsing");
 ok($h{'body'}, $body, "incorrect body parsing");
 ok($h{'type'}, 'location', "incorrect packet type parsing");
+ok($h{'format'}, 'nmea', "incorrect packet format parsing");
 
 # check for undefined value, when there is no such data in the packet
 ok($h{'posambiguity'}, undef, "incorrect posambiguity parsing");

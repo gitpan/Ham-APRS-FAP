@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 48 + 7 };
+BEGIN { plan tests => 49 + 7 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2KKU-15";
@@ -22,6 +22,7 @@ ok($h{'dstcallsign'}, $dstcall, "incorrect destination callsign parsing");
 ok($h{'header'}, $header, "incorrect header parsing");
 ok($h{'body'}, $body, "incorrect body parsing");
 ok($h{'type'}, 'location', "incorrect packet type parsing");
+ok($h{'format'}, 'compressed', "incorrect packet format parsing");
 
 ok($h{'comment'}, 'igate testing', "incorrect comment parsing");
 
