@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 48 };
+BEGIN { plan tests => 48 + 7 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2KKU-15";
@@ -95,4 +95,19 @@ ok(sprintf('%.3f', $h{'posresolution'}), "0.291", "incorrect position resolution
 ok(sprintf("%.2f", $h{'speed'}), "107.57", "incorrect speed");
 ok($h{'course'}, 360, "incorrect course");
 ok($h{'altitude'}, undef, "incorrect altitude");
+
+### compressed packet with weather
+
+$aprspacket = 'SV4IKL-2>APU25N,WIDE2-2,qAR,SV6EXB-1:@011444z/:JF!T/W-_e!bg000t054r000p010P010h65b10073WS 2300 {UIV32N}';
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse a compressed packet with weather data");
+ok($h{'symboltable'}, '/', "incorrect symboltable parsing (compressed+wx)");
+ok($h{'symbolcode'}, '_', "incorrect symbolcode parsing (compressed+wx)");
+ok($h{'comment'}, 'WS 2300 {UIV32N}', "incorrect symbolcode parsing (compressed+wx)");
+
+ok($h{'wx'}->{'temp'}, "12.2", "incorrect temperature parsing");
+ok($h{'wx'}->{'humidity'}, 65, "incorrect humidity parsing");
+ok($h{'wx'}->{'pressure'}, "1007.3", "incorrect pressure parsing");
 

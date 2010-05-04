@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 23 };
+BEGIN { plan tests => 23 + 11 };
 use Ham::APRS::FAP qw(parseaprs);
 
 # first, the $ULTW format
@@ -26,6 +26,28 @@ ok($h{'wx'}->{'pressure'}, "1025.9", "incorrect pressure parsing");
 ok($h{'wx'}->{'rain_24h'}, undef, "incorrect rain_24h parsing");
 ok($h{'wx'}->{'rain_1h'}, undef, "incorrect rain_1h parsing");
 ok($h{'wx'}->{'rain_midnight'}, "4.1", "incorrect rain_midnight parsing");
+
+ok($h{'wx'}->{'soft'}, undef, "incorrect wx software id");
+
+# another, with a temperature below 0F
+
+$aprspacket = 'SR3DGT>APN391,SQ2LYH-14,SR4DOS,WIDE2*,qAo,SR4NWO-1:$ULTW00000000FFEA0000296F000A9663000103E80016025D';
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse an ULTW wx packet");
+
+ok($h{'wx'}->{'wind_direction'}, 0, "incorrect wind direction parsing");
+ok($h{'wx'}->{'wind_speed'}, undef, "incorrect wind speed parsing");
+ok($h{'wx'}->{'wind_gust'}, "0.0", "incorrect wind gust parsing");
+
+ok($h{'wx'}->{'temp'}, "-19.0", "incorrect temperature parsing");
+ok($h{'wx'}->{'humidity'}, 100, "incorrect humidity parsing");
+ok($h{'wx'}->{'pressure'}, "1060.7", "incorrect pressure parsing");
+
+ok($h{'wx'}->{'rain_24h'}, undef, "incorrect rain_24h parsing");
+ok($h{'wx'}->{'rain_1h'}, undef, "incorrect rain_1h parsing");
+ok($h{'wx'}->{'rain_midnight'}, "0.0", "incorrect rain_midnight parsing");
 
 ok($h{'wx'}->{'soft'}, undef, "incorrect wx software id");
 

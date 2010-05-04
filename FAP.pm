@@ -108,7 +108,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.13';
+our $VERSION = '1.14';
 
 
 # Preloaded methods go here.
@@ -738,6 +738,18 @@ sub _parse_timestamp($) {
 	return 0;
 }
 
+# clean up a comment string - remove control codes
+# but stay UTF-8 clean
+sub _cleanup_comment($)
+{
+	my($s) = @_;
+	
+	$s =~ tr/[\x20-\x7e\x80-\xfe]//cd;
+	$s =~ s/^\s+//;
+	$s =~ s/\s+$//;
+	
+	return $s;
+}
 
 # Return position resolution in meters based on the number
 # of minute decimal digits. Also accepts negative numbers,
@@ -1204,11 +1216,8 @@ sub _comments_to_decimal($$$) {
 	# Save the rest as a separate comment, if
 	# anything is left (trim unprintable chars
 	# out first and white space from both ends)
-	$rest =~ tr/[\x20-\x7e\x80-\xfe]//cd;
-	$rest =~ s/^\s+//;
-	$rest =~ s/\s+$//;
 	if (length($rest) > 0) {
-		$rethash->{comment} = $rest;
+		$rethash->{comment} = _cleanup_comment($rest);
 	}
 
 	# Always succeed as these are optional
@@ -1367,7 +1376,7 @@ sub _message_parse($$$) {
 			$rethash->{messageack} = $1;
 			return 1;
 		}
-		# check whether this is an ack
+		# check whether this is a message reject
 		if ($message =~ /^rej([A-Za-z0-9}]{1,5})\s*$/o) {
 			$rethash->{messagerej} = $1;
 			return 1;
@@ -1459,7 +1468,9 @@ sub _normalpos_to_decimal($$$) {
 		_a_err($rethash, 'loc_short');
 		return 0;
 	}
-
+	
+	$rethash->{'format'} = 'uncompressed';
+	
 	# Make a more detailed check on the format, but do the
 	# actual value checks later
 	my $lon_deg = undef;
@@ -1626,6 +1637,8 @@ sub _mice_to_decimal($$$$$) {
 		}
 	}
 
+	$rethash->{'format'} = 'mice';
+	
 	# First do the destination callsign
 	# (latitude, message bits, N/S and W/E indicators and long. offset)
 
@@ -1794,18 +1807,15 @@ sub _mice_to_decimal($$$$$) {
 		# If anything is left, store it as a comment
 		# after removing non-printable ASCII
 		# characters
-		$rest =~ tr/[\x20-\x7e\x80-\xfe]//cd;
-		$rest =~ s/^\s+//;
-		$rest =~ s/\s+$//;
 		if (length($rest) > 0) {
-			$rethash->{comment} = $rest;
+			$rethash->{'comment'} = _cleanup_comment($rest);
 		}
 	}
 	
 	#if ($mice_fixed) {
 	#	warn "$srccallsign: fixed packet was parsed\n";
 	#}
-
+	
 	return 1;
 }
 
@@ -1822,6 +1832,8 @@ sub _compressed_to_decimal($$$)
 		return 0;
 	}
 
+	$rethash->{'format'} = 'compressed';
+	
 	my $symboltable = substr($packet, 0, 1);
 	my $lat1 = ord(substr($packet, 1, 1)) - 33;
 	my $lat2 = ord(substr($packet, 2, 1)) - 33;
@@ -2048,14 +2060,17 @@ sub _wx_parse($$)
 	my ($wind_dir, $wind_speed, $temp, $wind_gust) = ('', '', '', '');
 	if ($s =~ s/^_{0,1}([\d \.\-]{3})\/([\d \.]{3})g([\d \.]+)t(-{0,1}[\d \.]+)//
 	    || $s =~ s/^_{0,1}c([\d \.\-]{3})s([\d \.]{3})g([\d \.]+)t(-{0,1}[\d \.]+)//) {
-	    	#warn "wind $1 / $2 gust $3 temp $4\n";
-	    	($wind_dir, $wind_speed, $wind_gust, $temp) = ($1, $2, $3, $4);
+		#warn "wind $1 / $2 gust $3 temp $4\n";
+		($wind_dir, $wind_speed, $wind_gust, $temp) = ($1, $2, $3, $4);
 	} elsif ($s =~ s/^_{0,1}([\d \.\-]{3})\/([\d \.]{3})t(-{0,1}[\d \.]+)//) {
-	    	#warn "$initial\nwind $1 / $2 temp $3\n";
-	    	($wind_dir, $wind_speed, $temp) = ($1, $2, $3);
+		#warn "$initial\nwind $1 / $2 temp $3\n";
+		($wind_dir, $wind_speed, $temp) = ($1, $2, $3);
 	} elsif ($s =~ s/^_{0,1}([\d \.\-]{3})\/([\d \.]{3})g([\d \.]+)//) {
-	    	#warn "$initial\nwind $1 / $2 gust $3\n";
-	    	($wind_dir, $wind_speed, $wind_gust) = ($1, $2, $3);
+		#warn "$initial\nwind $1 / $2 gust $3\n";
+		($wind_dir, $wind_speed, $wind_gust) = ($1, $2, $3);
+	} elsif ($s =~ s/^g(\d+)t(-{0,1}[\d \.]+)//) {
+		# g000t054r000p010P010h65b10073WS 2300 {UIV32N}
+		($wind_gust, $temp) = ($1, $2);
 	} else {
 		#warn "wx_parse: no initial match: $s\n";
 		return 0;
@@ -2082,6 +2097,7 @@ sub _wx_parse($$)
 	
 	if ($s =~ s/h(\d{1,3})//) {
 		$w{'humidity'} = sprintf('%.0f', $1); # percentage
+		$w{'humidity'} = 100 if ($w{'humidity'} eq 0);
 		undef $w{'humidity'} if ($w{'humidity'} > 100 || $w{'humidity'} < 1);
 	}
 	
@@ -2098,8 +2114,9 @@ sub _wx_parse($$)
 		# what ?
 	}
 	
-	if ($s =~ s/s(\d+)//) {
+	if ($s =~ s/s(\d{1,3})//) {
 		# snowfall
+		$w{'snow_24h'} = sprintf('%.1f', $1*$hinch_to_mm);
 	}
 	
 	if ($s =~ s/#(\d+)//) {
@@ -2110,7 +2127,11 @@ sub _wx_parse($$)
 	
 	$s =~ s/^\s+//;
 	$s =~ s/\s+/ /;
-	$w{'soft'} = substr($s, 0, 16) if ($s ne '');
+	if ($s =~ /^[a-zA-Z0-9\-_]{3,5}$/) {
+		$w{'soft'} = substr($s, 0, 16) if ($s ne '');
+	} else {
+		$rh->{'comment'} = _cleanup_comment($s);
+	}
 	
 	if (defined $w{'temp'}
 	    || (defined $w{'wind_speed'} && defined $w{'wind_direction'})
@@ -2141,7 +2162,9 @@ sub _wx_parse_peet_packet($$$)
 		if ($1 eq '----') {
 			push @vals, undef;
 		} else {
-			push @vals, hex $1;
+			# signed 16-bit integers in network (big-endian) order
+			# encoded in hex, high nybble first
+			push @vals, unpack('n!', pack('H*', $1));
 		}
 	}
 	return 0 if (!@vals);
@@ -2514,8 +2537,10 @@ sub parseaprs($$;%) {
 					# if the comments don't parse, don't raise an error
 					if ($retval == 1 && $rethash->{symbolcode} ne '_') {
 						_comments_to_decimal(substr($body, 13), $srccallsign, $rethash);
+					} else {
+						#warn "maybe a weather report?\n" . substr($body, 13) . "\n";
+						_wx_parse(substr($body, 13), $rethash);
 					}
-					# FIXME: parse weather too, if exists
 				}
 			} elsif ($poschar =~ /^\d$/io) {
 				# normal uncompressed position
@@ -3473,9 +3498,9 @@ Heikki Hannikainen, OH7LZB E<lt>hessu@hes.iki.fiE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2005-2009 by Tapio Sokura
+Copyright 2005-2010 by Tapio Sokura
 
-Copyright 2007-2009 by Heikki Hannikainen
+Copyright 2007-2010 by Heikki Hannikainen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

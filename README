@@ -1,4 +1,4 @@
-Ham::APRS::FAP version 1.13
+Ham::APRS::FAP version 1.14
 ===========================
 
 FAP - Finnish APRS Parser (Fabulous APRS Parser)
@@ -52,8 +52,8 @@ THINGS TO DO
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2005-2009 Tapio Sokura
-Copyright (C) 2007-2009 Heikki Hannikainen
+Copyright (C) 2005-2010 Tapio Sokura
+Copyright (C) 2007-2010 Heikki Hannikainen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

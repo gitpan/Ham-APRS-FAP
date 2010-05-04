@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 27 };
+BEGIN { plan tests => 27 + 5 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $comment = "/RELAY,WIDE, OH2AP Jarvenpaa";
@@ -62,3 +62,15 @@ ok(sprintf('%.4f', $h{'latitude'}), "-60.4752", "incorrect latitude parsing (las
 ok(sprintf('%.4f', $h{'longitude'}), "-25.0947", "incorrect longitude parsing (last resort)");
 ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution (last resort)");
 ok($h{'comment'}, $comment, "incorrect comment parsing (last resort)");
+
+# Here is a comment on a station with a WX symbol. The comment is ignored,
+# because it easily gets confused with weather data.
+%h = ();
+$aprspacket = "A0RID-1>KC0PID-7,WIDE1,qAR,NX0R-6:=3851.38N/09908.75W_Home of KA0RID";
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse an uncompressed packet (comment instead of wx)");
+ok(sprintf('%.4f', $h{'latitude'}), "38.8563", "incorrect latitude parsing (comment instead of wx)");
+ok(sprintf('%.4f', $h{'longitude'}), "-99.1458", "incorrect longitude parsing (comment instead of wx)");
+ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution (comment instead of wx)");
+ok($h{'comment'}, undef, "incorrect comment parsing (comment instead of wx)");

@@ -106,3 +106,15 @@ Revision history for Perl extension Ham::APRS::FAP.
 	- Fixed comments parsing for last resort !-location packets
 	- Parse APRS message rejects
 
+1.14  Tue May  4 20:31:33 EEST 2010 - Hessu, OH7LZB
+	- Fixed humidity parsing, h0 means 100%
+	- Fixed peet bros $ULTW packet parsing, integers are signed (not
+	  unsigned), negative fahrenheit temperatures are now correctly
+	  parsed (and converted to Celsius)
+	- Parse comment from end of weather reports - if it's short enough,
+	  treat it as the wx station/software type string
+	- Parse weather data sent after a compressed position
+	- Parse snowfall from normal wx packet
+	- Added test for positionless wx packets
+	- Added position packet format in hash ('format' => 'compressed')
+
