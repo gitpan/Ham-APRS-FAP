@@ -121,3 +121,14 @@ Revision history for Perl extension Ham::APRS::FAP.
 1.15  Tue May  4 20:44:31 EEST 2010 - Hessu, OH7LZB
 	- Added a couple of missing tests and 'format' => 'nmea'
 
+1.16  Wed May 19 22:34:43 EEST 2010 - Hessu, OH7LZB
+	- Added a couple of test cases
+	- Added an example script to parse a whole file of timestamped
+	  APRS-IS packets
+	- Fixed peet WX packet parsing for Perl 5.8 and older, which don't
+	  support n! packing
+	- Minor speedups by reducing amount of regular expressions, extra
+	  variables, reordering things to catch the most common case
+	  first, and tightening a loop
+	- Put '' around hash key strings (style issue)
+

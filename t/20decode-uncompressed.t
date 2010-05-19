@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 28 + 5 };
+BEGIN { plan tests => 28 + 5 + 3 + 3 + 3 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $comment = "/RELAY,WIDE, OH2AP Jarvenpaa";
@@ -75,3 +75,29 @@ ok(sprintf('%.4f', $h{'latitude'}), "38.8563", "incorrect latitude parsing (comm
 ok(sprintf('%.4f', $h{'longitude'}), "-99.1458", "incorrect longitude parsing (comment instead of wx)");
 ok(sprintf('%.2f', $h{'posresolution'}), "18.52", "incorrect position resolution (comment instead of wx)");
 ok($h{'comment'}, undef, "incorrect comment parsing (comment instead of wx)");
+
+# validate that whitespace is trimmed from comment
+$aprspacket = "$srccall>$dstcall,OH2RDG*,WIDE:!6028.51N/02505.68E#PHG$phg   $comment  \t ";
+$retval = parseaprs($aprspacket, \%h);
+ok($retval, 1, "failed to parse a basic uncompressed packet with extra whitespace");
+ok($h{'phg'}, $phg, "incorrect PHG parsing");
+ok($h{'comment'}, $comment, "incomment comment whitespace trimming");
+
+# position with timestamp
+%h = (); # clean up
+$aprspacket = "YB1RUS-9>APOTC1,WIDE2-2,qAS,YC0GIN-1:/180000z0609.31S/10642.85E>058/010/A=000079 13.8V 15CYB1RUS-9 Mobile Tracker";
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse an uncompressed packet (with timestamp, position, alt)");
+ok(sprintf('%.5f', $h{'latitude'}), "-6.15517", "incorrect latitude parsing (uncompressed packet with timestamp, position, alt)");
+ok(sprintf('%.5f', $h{'longitude'}), "106.71417", "incorrect longitude parsing (uncompressed packet with timestamp, position, alt)");
+
+# rather basic position packet
+%h = (); # clean up
+$aprspacket = "YC0SHR>APU25N,TCPIP*,qAC,ALDIMORI:=0606.23S/10644.61E-GW SAHARA PENJARINGAN JAKARTA 147.880 MHz";
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse an uncompressed packet (YC0SHR)");
+ok(sprintf('%.5f', $h{'latitude'}), "-6.10383", "incorrect latitude parsing (YC0SHR)");
+ok(sprintf('%.5f', $h{'longitude'}), "106.74350", "incorrect longitude parsing (YC0SHR)");
+

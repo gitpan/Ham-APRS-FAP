@@ -108,7 +108,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.15';
+our $VERSION = '1.16';
 
 
 # Preloaded methods go here.
@@ -256,21 +256,21 @@ sub _a_warn($$;$)
 # from left to right, bits a, b and c
 # standard one bit is 1, custom one bit is 2
 my %mice_messagetypes = (
-	"111" => "off duty",
-	"222" => "custom 0",
-	"110" => "en route",
-	"220" => "custom 1",
-	"101" => "in service",
-	"202" => "custom 2",
-	"100" => "returning",
-	"200" => "custom 3",
-	"011" => "committed",
-	"022" => "custom 4",
-	"010" => "special",
-	"020" => "custom 5",
-	"001" => "priority",
-	"002" => "custom 6",
-	"000" => "emergency",
+	'111' => 'off duty',
+	'222' => 'custom 0',
+	'110' => 'en route',
+	'220' => 'custom 1',
+	'101' => 'in service',
+	'202' => 'custom 2',
+	'100' => 'returning',
+	'200' => 'custom 3',
+	'011' => 'committed',
+	'022' => 'custom 4',
+	'010' => 'special',
+	'020' => 'custom 5',
+	'001' => 'priority',
+	'002' => 'custom 6',
+	'000' => 'emergency',
 );
 
 =over
@@ -299,71 +299,71 @@ sub mice_mbits_to_message($) {
 # to APRS symbols. Overlay characters (z) are
 # not handled here
 my %dstsymbol = (
-	"BB" => q(/!), "BC" => q(/"), "BD" => q(/#), "BE" => q(/$),
-	"BF" => q(/%), "BG" => q(/&), "BH" => q(/'), "BI" => q!/(!,
-	"BJ" => q!/)!, "BK" => q(/*), "BL" => q(/+), "BM" => q(/,),
-	"BN" => q(/-), "BO" => q(/.), "BP" => q(//),
+	'BB' => q(/!), 'BC' => q(/'), 'BD' => q(/#), 'BE' => q(/$),
+	'BF' => q(/%), 'BG' => q(/&), 'BH' => q(/'), 'BI' => q!/(!,
+	'BJ' => q!/)!, 'BK' => q(/*), 'BL' => q(/+), 'BM' => q(/,),
+	'BN' => q(/-), 'BO' => q(/.), 'BP' => q(//),
 
-	"P0" => q(/0), "P1" => q(/1), "P2" => q(/2), "P3" => q(/3),
-	"P4" => q(/4), "P5" => q(/5), "P6" => q(/6), "P7" => q(/7),
-	"P8" => q(/8), "P9" => q(/9),
+	'P0' => q(/0), 'P1' => q(/1), 'P2' => q(/2), 'P3' => q(/3),
+	'P4' => q(/4), 'P5' => q(/5), 'P6' => q(/6), 'P7' => q(/7),
+	'P8' => q(/8), 'P9' => q(/9),
 
-	"MR" => q(/:), "MS" => q(/;), "MT" => q(/<), "MU" => q(/=),
-	"MV" => q(/>), "MW" => q(/?), "MX" => q(/@),
+	'MR' => q(/:), 'MS' => q(/;), 'MT' => q(/<), 'MU' => q(/=),
+	'MV' => q(/>), 'MW' => q(/?), 'MX' => q(/@),
 
-	"PA" => q(/A), "PB" => q(/B), "PC" => q(/C), "PD" => q(/D),
-	"PE" => q(/E), "PF" => q(/F), "PG" => q(/G), "PH" => q(/H),
-	"PI" => q(/I), "PJ" => q(/J), "PK" => q(/K), "PL" => q(/L),
-	"PM" => q(/M), "PN" => q(/N), "PO" => q(/O), "PP" => q(/P),
-	"PQ" => q(/Q), "PR" => q(/R), "PS" => q(/S), "PT" => q(/T),
-	"PU" => q(/U), "PV" => q(/V), "PW" => q(/W), "PX" => q(/X),
-	"PY" => q(/Y), "PZ" => q(/Z),
+	'PA' => q(/A), 'PB' => q(/B), 'PC' => q(/C), 'PD' => q(/D),
+	'PE' => q(/E), 'PF' => q(/F), 'PG' => q(/G), 'PH' => q(/H),
+	'PI' => q(/I), 'PJ' => q(/J), 'PK' => q(/K), 'PL' => q(/L),
+	'PM' => q(/M), 'PN' => q(/N), 'PO' => q(/O), 'PP' => q(/P),
+	'PQ' => q(/Q), 'PR' => q(/R), 'PS' => q(/S), 'PT' => q(/T),
+	'PU' => q(/U), 'PV' => q(/V), 'PW' => q(/W), 'PX' => q(/X),
+	'PY' => q(/Y), 'PZ' => q(/Z),
 
-	"HS" => q(/[), "HT" => q(/\\), "HU" => q(/]), "HV" => q(/^),
-	"HW" => q(/_), "HX" => q(/`),
+	'HS' => q(/[), 'HT' => q(/\\), 'HU' => q(/]), 'HV' => q(/^),
+	'HW' => q(/_), 'HX' => q(/`),
 
-	"LA" => q(/a), "LB" => q(/b), "LC" => q(/c), "LD" => q(/d),
-	"LE" => q(/e), "LF" => q(/f), "LG" => q(/g), "LH" => q(/h),
-	"LI" => q(/i), "LJ" => q(/j), "LK" => q(/k), "LL" => q(/l),
-	"LM" => q(/m), "LN" => q(/n), "LO" => q(/o), "LP" => q(/p),
-	"LQ" => q(/q), "LR" => q(/r), "LS" => q(/s), "LT" => q(/t),
-	"LU" => q(/u), "LV" => q(/v), "LW" => q(/w), "LX" => q(/x),
-	"LY" => q(/y), "LZ" => q(/z),
+	'LA' => q(/a), 'LB' => q(/b), 'LC' => q(/c), 'LD' => q(/d),
+	'LE' => q(/e), 'LF' => q(/f), 'LG' => q(/g), 'LH' => q(/h),
+	'LI' => q(/i), 'LJ' => q(/j), 'LK' => q(/k), 'LL' => q(/l),
+	'LM' => q(/m), 'LN' => q(/n), 'LO' => q(/o), 'LP' => q(/p),
+	'LQ' => q(/q), 'LR' => q(/r), 'LS' => q(/s), 'LT' => q(/t),
+	'LU' => q(/u), 'LV' => q(/v), 'LW' => q(/w), 'LX' => q(/x),
+	'LY' => q(/y), 'LZ' => q(/z),
 
-	"J1" => q(/{), "J2" => q(/|), "J3" => q(/}), "J4" => q(/~),
+	'J1' => q(/{), 'J2' => q(/|), 'J3' => q(/}), 'J4' => q(/~),
 
-	"OB" => q(\\!), "OC" => q(\\"), "OD" => q(\\#), "OE" => q(\\$),
-	"OF" => q(\\%), "OG" => q(\\&), "OH" => q(\\'), "OI" => q!\\(!,
-	"OJ" => q!\\)!, "OK" => q(\\*), "OL" => q(\\+), "OM" => q(\\,),
-	"ON" => q(\\-), "OO" => q(\\.), "OP" => q(\\/),
+	'OB' => q(\\!), 'OC' => q(\\"), 'OD' => q(\\#), 'OE' => q(\\$),
+	'OF' => q(\\%), 'OG' => q(\\&), 'OH' => q(\\'), 'OI' => q!\\(!,
+	'OJ' => q!\\)!, 'OK' => q(\\*), 'OL' => q(\\+), 'OM' => q(\\,),
+	'ON' => q(\\-), 'OO' => q(\\.), 'OP' => q(\\/),
 
-	"A0" => q(\\0), "A1" => q(\\1), "A2" => q(\\2), "A3" => q(\\3),
-	"A4" => q(\\4), "A5" => q(\\5), "A6" => q(\\6), "A7" => q(\\7),
-	"A8" => q(\\8), "A9" => q(\\9),
+	'A0' => q(\\0), 'A1' => q(\\1), 'A2' => q(\\2), 'A3' => q(\\3),
+	'A4' => q(\\4), 'A5' => q(\\5), 'A6' => q(\\6), 'A7' => q(\\7),
+	'A8' => q(\\8), 'A9' => q(\\9),
 
-	"NR" => q(\\:), "NS" => q(\\;), "NT" => q(\\<), "NU" => q(\\=),
-	"NV" => q(\\>), "NW" => q(\\?), "NX" => q(\\@),
+	'NR' => q(\\:), 'NS' => q(\\;), 'NT' => q(\\<), 'NU' => q(\\=),
+	'NV' => q(\\>), 'NW' => q(\\?), 'NX' => q(\\@),
 
-	"AA" => q(\\A), "AB" => q(\\B), "AC" => q(\\C), "AD" => q(\\D),
-	"AE" => q(\\E), "AF" => q(\\F), "AG" => q(\\G), "AH" => q(\\H),
-	"AI" => q(\\I), "AJ" => q(\\J), "AK" => q(\\K), "AL" => q(\\L),
-	"AM" => q(\\M), "AN" => q(\\N), "AO" => q(\\O), "AP" => q(\\P),
-	"AQ" => q(\\Q), "AR" => q(\\R), "AS" => q(\\S), "AT" => q(\\T),
-	"AU" => q(\\U), "AV" => q(\\V), "AW" => q(\\W), "AX" => q(\\X),
-	"AY" => q(\\Y), "AZ" => q(\\Z),
+	'AA' => q(\\A), 'AB' => q(\\B), 'AC' => q(\\C), 'AD' => q(\\D),
+	'AE' => q(\\E), 'AF' => q(\\F), 'AG' => q(\\G), 'AH' => q(\\H),
+	'AI' => q(\\I), 'AJ' => q(\\J), 'AK' => q(\\K), 'AL' => q(\\L),
+	'AM' => q(\\M), 'AN' => q(\\N), 'AO' => q(\\O), 'AP' => q(\\P),
+	'AQ' => q(\\Q), 'AR' => q(\\R), 'AS' => q(\\S), 'AT' => q(\\T),
+	'AU' => q(\\U), 'AV' => q(\\V), 'AW' => q(\\W), 'AX' => q(\\X),
+	'AY' => q(\\Y), 'AZ' => q(\\Z),
 
-	"DS" => q(\\[), "DT" => q(\\\\), "DU" => q(\\]), "DV" => q(\\^),
-	"DW" => q(\\_), "DX" => q(\\`),
+	'DS' => q(\\[), 'DT' => q(\\\\), 'DU' => q(\\]), 'DV' => q(\\^),
+	'DW' => q(\\_), 'DX' => q(\\`),
 
-	"SA" => q(\\a), "SB" => q(\\b), "SC" => q(\\c), "SD" => q(\\d),
-	"SE" => q(\\e), "SF" => q(\\f), "SG" => q(\\g), "SH" => q(\\h),
-	"SI" => q(\\i), "SJ" => q(\\j), "SK" => q(\\k), "SL" => q(\\l),
-	"SM" => q(\\m), "SN" => q(\\n), "SO" => q(\\o), "SP" => q(\\p),
-	"SQ" => q(\\q), "SR" => q(\\r), "SS" => q(\\s), "ST" => q(\\t),
-	"SU" => q(\\u), "SV" => q(\\v), "SW" => q(\\w), "SX" => q(\\x),
-	"SY" => q(\\y), "SZ" => q(\\z),
+	'SA' => q(\\a), 'SB' => q(\\b), 'SC' => q(\\c), 'SD' => q(\\d),
+	'SE' => q(\\e), 'SF' => q(\\f), 'SG' => q(\\g), 'SH' => q(\\h),
+	'SI' => q(\\i), 'SJ' => q(\\j), 'SK' => q(\\k), 'SL' => q(\\l),
+	'SM' => q(\\m), 'SN' => q(\\n), 'SO' => q(\\o), 'SP' => q(\\p),
+	'SQ' => q(\\q), 'SR' => q(\\r), 'SS' => q(\\s), 'ST' => q(\\t),
+	'SU' => q(\\u), 'SV' => q(\\v), 'SW' => q(\\w), 'SX' => q(\\x),
+	'SY' => q(\\y), 'SZ' => q(\\z),
 
-	"Q1" => q(\\{), "Q2" => q(\\|), "Q3" => q(\\}), "Q4" => q(\\~),
+	'Q1' => q(\\{), 'Q2' => q(\\|), 'Q3' => q(\\}), 'Q4' => q(\\~),
 );
 
 # conversion constants
@@ -414,7 +414,7 @@ sub _gettime {
 	} else {
 		($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime();
 	}
-	my $timestring = sprintf("%d-%02d-%02d %02d:%02d:%02d UTC",
+	my $timestring = sprintf('%d-%02d-%02d %02d:%02d:%02d UTC',
 		$year + 1900,
 		$mon + 1,
 		$mday,
@@ -621,115 +621,103 @@ sub count_digihops($) {
 # APRS six (+ one char for type) character timestamp.
 # If an invalid timestamp is given, return 0.
 sub _parse_timestamp($) {
-	my $timestring = shift @_;
-
 	# Check initial format
-	my $stamp = undef;
-	my $stamptype = undef;
-	if ($timestring =~ /^(\d{6})(z|h|\/)$/o) {
-		$stamp = $1;
-		$stamptype = $2;
-	} else {
-		return 0;
-	}
+	return 0 if ($_[0] !~ /^(\d{2})(\d{2})(\d{2})(z|h|\/)$/o);
+	
+	my $stamptype = $4;
 
 	if ($stamptype eq 'h') {
 		# HMS format
-		if ($stamp =~ /^(\d{2})(\d{2})(\d{2})$/io) {
-			my $hour = $1;
-			my $minute = $2;
-			my $second = $3;
-
-			# Check for invalid time
-			if ($hour > 23 || $minute > 59 || $second > 59) {
-				return 0;
-			}
-
-			# All calculations here are in UTC, but
-			# if this is run under old MacOS (pre-OSX), then
-			# Date_to_Time could be in local time..
-			my $currenttime = time();
-			my ($cyear, $cmonth, $cday) = Today(1);
-			my $tstamp = Date_to_Time($cyear, $cmonth, $cday,
-				$hour, $minute, $second);
-
-			# If the time is more than about one hour
-			# into the future, roll the timestamp
-			# one day backwards.
-			if ($currenttime + 3900 < $tstamp) {
-				$tstamp -= 86400;
+		my $hour = $1;
+		my $minute = $2;
+		my $second = $3;
+		
+		# Check for invalid time
+		if ($hour > 23 || $minute > 59 || $second > 59) {
+			return 0;
+		}
+		
+		# All calculations here are in UTC, but
+		# if this is run under old MacOS (pre-OSX), then
+		# Date_to_Time could be in local time..
+		my $currenttime = time();
+		my ($cyear, $cmonth, $cday) = Today(1);
+		my $tstamp = Date_to_Time($cyear, $cmonth, $cday, $hour, $minute, $second);
+		
+		# If the time is more than about one hour
+		# into the future, roll the timestamp
+		# one day backwards.
+		if ($currenttime + 3900 < $tstamp) {
+			$tstamp -= 86400;
 			# If the time is more than about 23 hours
 			# into the past, roll the timestamp one
 			# day forwards.
-			} elsif ($currenttime - 82500 > $tstamp) {
-				$tstamp += 86400;
-			}
-			return $tstamp;
+		} elsif ($currenttime - 82500 > $tstamp) {
+			$tstamp += 86400;
 		}
+		return $tstamp;
 
 	} elsif ($stamptype eq 'z' ||
 		 $stamptype eq '/') {
 		# Timestamp is DHM, UTC (z) or local (/).
 		# Always intepret local to mean local
 		# to this computer.
-		if ($stamp =~ /^(\d{2})(\d{2})(\d{2})$/io) {
-			my $day = $1;
-			my $hour = $2;
-			my $minute = $3;
-
-			if ($day < 1 || $day > 31 || $hour > 23 || $minute > 59) {
-				return 0;
-			}
-
-			# If time is under about 12 hours into
-			# the future, go there.
-			# Otherwise get the first matching
-			# time in the past.
-			my $currenttime = time();
-			my ($cyear, $cmonth, $cday);
+		my $day = $1;
+		my $hour = $2;
+		my $minute = $3;
+		
+		if ($day < 1 || $day > 31 || $hour > 23 || $minute > 59) {
+			return 0;
+		}
+		
+		# If time is under about 12 hours into
+		# the future, go there.
+		# Otherwise get the first matching
+		# time in the past.
+		my $currenttime = time();
+		my ($cyear, $cmonth, $cday);
+		if ($stamptype eq 'z') {
+			($cyear, $cmonth, $cday) = Today(1);
+		} else {
+			($cyear, $cmonth, $cday) = Today(0);
+		}
+		# Form the possible timestamps in
+		# this, the next and the previous month
+		my ($fwdyear, $fwdmonth) = (Add_Delta_YM($cyear, $cmonth, $cday, 0, 1))[0,1];
+		my ($backyear, $backmonth) = (Add_Delta_YM($cyear, $cmonth, $cday, 0, -1))[0,1];
+		my $fwdtstamp = undef;
+		my $currtstamp = undef;
+		my $backtstamp = undef;
+		if (check_date($cyear, $cmonth, $day)) {
 			if ($stamptype eq 'z') {
-				($cyear, $cmonth, $cday) = Today(1);
+				$currtstamp = Date_to_Time($cyear, $cmonth, $day, $hour, $minute, 0);
 			} else {
-				($cyear, $cmonth, $cday) = Today(0);
+				$currtstamp = Mktime($cyear, $cmonth, $day, $hour, $minute, 0);
 			}
-			# Form the possible timestamps in
-			# this, the next and the previous month
-			my ($fwdyear, $fwdmonth) = (Add_Delta_YM($cyear, $cmonth, $cday, 0, 1))[0,1];
-			my ($backyear, $backmonth) = (Add_Delta_YM($cyear, $cmonth, $cday, 0, -1))[0,1];
-			my $fwdtstamp = undef;
-			my $currtstamp = undef;
-			my $backtstamp = undef;
-			if (check_date($cyear, $cmonth, $day)) {
-				if ($stamptype eq 'z') {
-					$currtstamp = Date_to_Time($cyear, $cmonth, $day, $hour, $minute, 0);
-				} else {
-					$currtstamp = Mktime($cyear, $cmonth, $day, $hour, $minute, 0);
-				}
+		}
+		if (check_date($fwdyear, $fwdmonth, $day)) {
+			if ($stamptype eq 'z') {
+				$fwdtstamp = Date_to_Time($fwdyear, $fwdmonth, $day, $hour, $minute, 0);
+			} else {
+				$fwdtstamp = Mktime($cyear, $cmonth, $day, $hour, $minute, 0);
 			}
-			if (check_date($fwdyear, $fwdmonth, $day)) {
-				if ($stamptype eq 'z') {
-					$fwdtstamp = Date_to_Time($fwdyear, $fwdmonth, $day, $hour, $minute, 0);
-				} else {
-					$fwdtstamp = Mktime($cyear, $cmonth, $day, $hour, $minute, 0);
-				}
+		}
+		if (check_date($backyear, $backmonth, $day)) {
+			if ($stamptype eq 'z') {
+				$backtstamp = Date_to_Time($backyear, $backmonth, $day, $hour, $minute, 0);
+			} else {
+				$backtstamp = Mktime($cyear, $cmonth, $day, $hour, $minute, 0);
 			}
-			if (check_date($backyear, $backmonth, $day)) {
-				if ($stamptype eq 'z') {
-					$backtstamp = Date_to_Time($backyear, $backmonth, $day, $hour, $minute, 0);
-				} else {
-					$backtstamp = Mktime($cyear, $cmonth, $day, $hour, $minute, 0);
-				}
-			}
-			# Select the timestamp to use. Pick the timestamp
-			# that is largest, but under about 12 hours from
-			# current time.
-			if (defined($fwdtstamp) && ($fwdtstamp - $currenttime) < 43400) {
-				return $fwdtstamp;
-			} elsif (defined($currtstamp) && ($currtstamp - $currenttime) < 43400) {
-				return $currtstamp;
-			} elsif (defined($backtstamp)) {
-				return $backtstamp;
-			}
+		}
+		# Select the timestamp to use. Pick the timestamp
+		# that is largest, but under about 12 hours from
+		# current time.
+		if (defined($fwdtstamp) && ($fwdtstamp - $currenttime) < 43400) {
+			return $fwdtstamp;
+		} elsif (defined($currtstamp) && ($currtstamp - $currenttime) < 43400) {
+			return $currtstamp;
+		} elsif (defined($backtstamp)) {
+			return $backtstamp;
 		}
 	}
 
@@ -742,13 +730,11 @@ sub _parse_timestamp($) {
 # but stay UTF-8 clean
 sub _cleanup_comment($)
 {
-	my($s) = @_;
+	$_[0] =~ tr/[\x20-\x7e\x80-\xfe]//cd;
+	$_[0] =~ s/^\s+//;
+	$_[0] =~ s/\s+$//;
 	
-	$s =~ tr/[\x20-\x7e\x80-\xfe]//cd;
-	$s =~ s/^\s+//;
-	$s =~ s/\s+$//;
-	
-	return $s;
+	return $_[0];
 }
 
 # Return position resolution in meters based on the number
@@ -758,9 +744,7 @@ sub _cleanup_comment($)
 # (resolution in longitude gets better as you get closer to the poles).
 sub _get_posresolution($)
 {
-	my $minutedigitcount = shift @_;
-
-	return $knot_to_kmh * 1000 * 10 ** (-1 * $minutedigitcount);
+	return $knot_to_kmh * 1000 * 10 ** (-1 * $_[0]);
 }
 
 
@@ -781,11 +765,11 @@ sub _nmea_getlatlon($$$)
 	# minutes has 2 digits and there is at least
 	# one decimal minute.
 	if ($value =~ /^\s*(\d{1,3})([0-5][0-9])\.(\d+)\s*$/o) {
-		my $minutes = $2 . "." . $3;
+		my $minutes = $2 . '.' . $3;
 		$value = $1 + ($minutes / 60);
 		# capture position resolution in meters based
 		# on the amount of minute decimals present
-		$rh->{posresolution} = _get_posresolution(length($3));
+		$rh->{'posresolution'} = _get_posresolution(length($3));
 	} else {
 		_a_err($rh, 'nmea_inv_cval', $value);
 		return undef;
@@ -836,14 +820,14 @@ sub _get_symbol_fromdst($) {
 		my $type = substr($leftoverstring, 0, 1);
 		my $sublength = length($leftoverstring);
 		if ($sublength == 3) {
-			if ($type eq "C" || $type eq "E") {
+			if ($type eq 'C' || $type eq 'E') {
 				my $numberid = substr($leftoverstring, 1, 2);
 				if ($numberid =~ /^(\d{2})$/o &&
 				    $numberid > 0 &&
 				    $numberid < 95) {
 					$code = chr($1 + 32);
-					if ($type eq "C") {
-						$table = "/";
+					if ($type eq 'C') {
+						$table = '/';
 					} else {
 						$table = "\\";
 					}
@@ -857,12 +841,12 @@ sub _get_symbol_fromdst($) {
 				# secondary symbol table
 				my $dsttype = substr($leftoverstring, 0, 2);
 				my $overlay = substr($leftoverstring, 2, 1);
-				if (($type eq "O" ||
-				    $type eq "A" ||
-				    $type eq "N" ||
-				    $type eq "D" ||
-				    $type eq "S" ||
-				    $type eq "Q") && $overlay =~ /^[A-Z0-9]$/o) {
+				if (($type eq 'O' ||
+				    $type eq 'A' ||
+				    $type eq 'N' ||
+				    $type eq 'D' ||
+				    $type eq 'S' ||
+				    $type eq 'Q') && $overlay =~ /^[A-Z0-9]$/o) {
 					if (defined($dstsymbol{$dsttype})) {
 						$code = substr($dstsymbol{$dsttype}, 1, 1);
 						return ($overlay, $code);
@@ -922,7 +906,7 @@ sub _nmea_to_decimal($$$$) {
 			return 0;
 		}
 		# make a note of the existance of a checksum
-		$rethash->{checksumok} = 1;
+		$rethash->{'checksumok'} = 1;
 	}
 
 	# checksum ok or not provided
@@ -933,11 +917,11 @@ sub _nmea_to_decimal($$$$) {
 	# the destination callsign
 	my ($symtable, $symcode) = _get_symbol_fromdst($dstcallsign);
 	if (not(defined($symtable)) || not(defined($symcode))) {
-		$rethash->{symboltable} = "/";
-		$rethash->{symbolcode} = "/";
+		$rethash->{'symboltable'} = '/';
+		$rethash->{'symbolcode'} = '/';
 	} else {
-		$rethash->{symboltable} = $symtable;
-		$rethash->{symbolcode} = $symcode;
+		$rethash->{'symboltable'} = $symtable;
+		$rethash->{'symbolcode'} = $symcode;
 	}
 
 	# Split to NMEA fields
@@ -946,14 +930,14 @@ sub _nmea_to_decimal($$$$) {
 
 	# Now check the sentence type and get as much info
 	# as we can (want).
-	if ($nmeafields[0] eq "GPRMC") {
+	if ($nmeafields[0] eq 'GPRMC') {
 		# we want at least 10 fields
 		if (@nmeafields < 10) {
 			_a_err($rethash, 'gprmc_fewfields', scalar(@nmeafields));
 			return 0;
 		}
 
-		if ($nmeafields[2] ne "A") {
+		if ($nmeafields[2] ne 'A') {
 			# invalid position
 			_a_err($rethash, 'gprmc_nofix');
 			return 0;
@@ -999,11 +983,11 @@ sub _nmea_to_decimal($$$$) {
 		# so make sure it is not used for those years that
 		# are outside that range.
 		if ($year >= 2038 || $year < 1970) {
-			$rethash->{timestamp} = 0;
+			$rethash->{'timestamp'} = 0;
 			_a_err($rethash, 'gprmc_date_out', $year);
 			return 0;
 		} else {
-			$rethash->{timestamp} = Date_to_Time($year, $month, $day, $hour, $minute, $second);
+			$rethash->{'timestamp'} = Date_to_Time($year, $month, $day, $hour, $minute, $second);
 		}
 
 		# speed (knots) and course, make these optional
@@ -1011,7 +995,7 @@ sub _nmea_to_decimal($$$$) {
 		# can't be decoded).
 		if ($nmeafields[7] =~ /^\s*(\d+(|\.\d+))\s*$/o) {
 			# convert to km/h
-			$rethash->{speed} = $1 * $knot_to_kmh;
+			$rethash->{'speed'} = $1 * $knot_to_kmh;
 		}
 		if ($nmeafields[8] =~ /^\s*(\d+(|\.\d+))\s*$/o) {
 			# round to nearest integer
@@ -1023,9 +1007,9 @@ sub _nmea_to_decimal($$$$) {
 			} elsif ($course > 360) {
 				$course = 0; # invalid
 			}
-			$rethash->{course} = $course;
+			$rethash->{'course'} = $course;
 		} else {
-			$rethash->{course} = 0; # unknown
+			$rethash->{'course'} = 0; # unknown
 		}
 
 		# latitude and longitude
@@ -1033,17 +1017,17 @@ sub _nmea_to_decimal($$$$) {
 		if (not(defined($latitude))) {
 			return 0;
 		}
-		$rethash->{latitude} = $latitude;
+		$rethash->{'latitude'} = $latitude;
 		my $longitude = _nmea_getlatlon($nmeafields[5], $nmeafields[6], $rethash);
 		if (not(defined($longitude))) {
 			return 0;
 		}
-		$rethash->{longitude} = $longitude;
+		$rethash->{'longitude'} = $longitude;
 
 		# we have everything we want, return
 		return 1;
 
-	} elsif ($nmeafields[0] eq "GPGGA") {
+	} elsif ($nmeafields[0] eq 'GPGGA') {
 		# we want at least 11 fields
 		if (@nmeafields < 11) {
 			_a_err($rethash, 'gpgga_fewfields', scalar(@nmeafields));
@@ -1065,8 +1049,8 @@ sub _nmea_to_decimal($$$$) {
 		# the time and convert it to timestamp.
 		# But before that, remove a possible decimal part
 		$nmeafields[1] =~ s/\.\d+$//;
-		$rethash->{timestamp} = _parse_timestamp($nmeafields[1] . "h");
-		if ($rethash->{timestamp} == 0) {
+		$rethash->{'timestamp'} = _parse_timestamp($nmeafields[1] . 'h');
+		if ($rethash->{'timestamp'} == 0) {
 			_a_err($rethash, 'timestamp_inv_gpgga');
 			return 0;
 		}
@@ -1076,24 +1060,24 @@ sub _nmea_to_decimal($$$$) {
 		if (not(defined($latitude))) {
 			return 0;
 		}
-		$rethash->{latitude} = $latitude;
+		$rethash->{'latitude'} = $latitude;
 		my $longitude = _nmea_getlatlon($nmeafields[4], $nmeafields[5], $rethash);
 		if (not(defined($longitude))) {
 			return 0;
 		}
-		$rethash->{longitude} = $longitude;
+		$rethash->{'longitude'} = $longitude;
 
 		# altitude, only meters are accepted
-		if ($nmeafields[10] eq "M" &&
+		if ($nmeafields[10] eq 'M' &&
 		    $nmeafields[9] =~ /^(-?\d+(|\.\d+))$/o) {
 			# force numeric interpretation
-			$rethash->{altitude} = $1 + 0;
+			$rethash->{'altitude'} = $1 + 0;
 		}
 
 		# ok
 		return 1;
 
-	} elsif ($nmeafields[0] eq "GPGLL") {
+	} elsif ($nmeafields[0] eq 'GPGLL') {
 		# we want at least 5 fields
 		if (@nmeafields < 5) {
 			_a_err($rethash, 'gpgll_fewfields', scalar(@nmeafields));
@@ -1105,20 +1089,20 @@ sub _nmea_to_decimal($$$$) {
 		if (not(defined($latitude))) {
 			return 0;
 		}
-		$rethash->{latitude} = $latitude;
+		$rethash->{'latitude'} = $latitude;
 		my $longitude = _nmea_getlatlon($nmeafields[3], $nmeafields[4], $rethash);
 		if (not(defined($longitude))) {
 			return 0;
 		}
-		$rethash->{longitude} = $longitude;
+		$rethash->{'longitude'} = $longitude;
 
 		# Use the APRS time parsing routines to check
 		# the time and convert it to timestamp.
 		# But before that, remove a possible decimal part
 		if (@nmeafields >= 6) {
 			$nmeafields[5] =~ s/\.\d+$//;
-			$rethash->{timestamp} = _parse_timestamp($nmeafields[5] . "h");
-			if ($rethash->{timestamp} == 0) {
+			$rethash->{'timestamp'} = _parse_timestamp($nmeafields[5] . 'h');
+			if ($rethash->{'timestamp'} == 0) {
 				_a_err($rethash, 'timestamp_inv_gpgll');
 				return 0;
 			}
@@ -1126,7 +1110,7 @@ sub _nmea_to_decimal($$$$) {
 
 		if (@nmeafields >= 7) {
 			# GPS fix validity supplied
-			if ($nmeafields[6] ne "A") {
+			if ($nmeafields[6] ne 'A') {
 				_a_err($rethash, 'gpgll_nofix');
 				return 0;
 			}
@@ -1135,8 +1119,8 @@ sub _nmea_to_decimal($$$$) {
 		# ok
 		return 1;
 
-	##} elsif ($nmeafields[0] eq "GPVTG") {
-	##} elsif ($nmeafields[0] eq "GPWPT") {
+	##} elsif ($nmeafields[0] eq 'GPVTG') {
+	##} elsif ($nmeafields[0] eq 'GPWPT') {
 	} else {
 		$nmeafields[0] =~ tr/[\x00-\x1f]//d;
 		_a_err($rethash, 'nmea_unsupp', $nmeafields[0]);
@@ -1150,13 +1134,12 @@ sub _nmea_to_decimal($$$$) {
 # Parse the possible APRS data extension
 # as well as comment
 sub _comments_to_decimal($$$) {
-	my $packet = shift @_;
+	my $rest = shift @_;
 	my $srccallsign = shift @_;
 	my $rethash = shift @_;
 	
 	# First check the possible APRS data extension,
 	# immediately following the packet
-	my $rest = $packet;
 	if (length($rest) >= 7) {
 		if ($rest =~ /^([0-9. ]{3})\/([0-9. ]{3})/o) {
 			my $course = $1;
@@ -1166,15 +1149,15 @@ sub _comments_to_decimal($$$) {
 			    $course >= 1) {
 				# force numeric interpretation
 				$course += 0;
-				$rethash->{course} = $course;
+				$rethash->{'course'} = $course;
 			} else {
 				# course is invalid, set it to zero
-				$rethash->{course} = 0;
+				$rethash->{'course'} = 0;
 			}
 			if ($speed =~ /^\d{3}$/o) {
 				# force numeric interpretation
 				# and convert to km/h
-				$rethash->{speed} = $speed * $knot_to_kmh;
+				$rethash->{'speed'} = $speed * $knot_to_kmh;
 			} else {
 				# If speed is invalid, don't set it
 				# (zero speed is a valid speed).
@@ -1194,7 +1177,7 @@ sub _comments_to_decimal($$$) {
 		} elsif ($rest =~ /^RNG(\d{4})/o) {
 			# radio range, in miles, so convert
 			# to km
-			$rethash->{radiorange} = $1 * $mph_to_kmh;
+			$rethash->{'radiorange'} = $1 * $mph_to_kmh;
 			$rest = substr($rest, 7);
 		}
 	}
@@ -1203,7 +1186,7 @@ sub _comments_to_decimal($$$) {
 	# take the first occurrence
 	if ($rest =~ /^(.*?)\/A=(-\d{5}|\d{6})(.*)$/o) {
 		# convert to meters as well
-		$rethash->{altitude} = $2 * 0.3048;
+		$rethash->{'altitude'} = $2 * 0.3048;
 		$rest = $1 . $3;
 	}
 
@@ -1219,7 +1202,7 @@ sub _comments_to_decimal($$$) {
 	# anything is left (trim unprintable chars
 	# out first and white space from both ends)
 	if (length($rest) > 0) {
-		$rethash->{comment} = _cleanup_comment($rest);
+		$rethash->{'comment'} = _cleanup_comment($rest);
 	}
 
 	# Always succeed as these are optional
@@ -1243,11 +1226,11 @@ sub _object_to_decimal($$$) {
 	my $timestamp = undef;
 	if ($packet =~ /^;([\x20-\x7e]{9})(\*|_)(\d{6})(z|h|\/)/o) {
 		# hash member 'objectname' signals an object
-		$rethash->{objectname} = $1;
+		$rethash->{'objectname'} = $1;
 		if ($2 eq '*') {
-			$rethash->{alive} = 1;
+			$rethash->{'alive'} = 1;
 		} else {
-			$rethash->{alive} = 0;
+			$rethash->{'alive'} = 0;
 		}
 		$timestamp = $3 . $4;
 	} else {
@@ -1258,8 +1241,8 @@ sub _object_to_decimal($$$) {
 	# Check the timestamp for validity and convert
 	# to UNIX epoch. If the timestamp is invalid, set it
 	# to zero.
-	$rethash->{timestamp} = _parse_timestamp($timestamp);
-	if ($rethash->{timestamp} == 0) {
+	$rethash->{'timestamp'} = _parse_timestamp($timestamp);
+	if ($rethash->{'timestamp'} == 0) {
 		_a_warn($rethash, 'timestamp_inv_obj');
 	}
 
@@ -1285,7 +1268,7 @@ sub _object_to_decimal($$$) {
 	# Check the APRS data extension and possible comments,
 	# unless it is a weather report (we don't want erroneus
 	# course/speed figures and weather in the comments..)
-	if ($rethash->{symbolcode} ne '_') {
+	if ($rethash->{'symbolcode'} ne '_') {
 		_comments_to_decimal(substr($packet, $locationoffset), $srccallsign, $rethash);
 	} else {
 		# possibly a weather object, try to parse
@@ -1309,13 +1292,13 @@ sub _status_parse($$$) {
 
 	# Check for a timestamp
 	if ($packet =~ /^(\d{6}z)/o) {
-		$rethash->{timestamp} = _parse_timestamp($1);
-		_a_warn($rethash, 'timestamp_inv_sta') if ($rethash->{timestamp} == 0);
+		$rethash->{'timestamp'} = _parse_timestamp($1);
+		_a_warn($rethash, 'timestamp_inv_sta') if ($rethash->{'timestamp'} == 0);
 		$packet = substr($packet, 7);
 	}
 
 	# Save the rest as the report
-	$rethash->{status} = $packet;
+	$rethash->{'status'} = $packet;
 
 	return 1;
 }
@@ -1348,13 +1331,13 @@ sub _capabilities_parse($$$) {
 	my $keycount = keys(%caphash);
 	if ($keycount > 0) {
 		# store the capabilities in the return hash
-		$rethash->{capabilities} = \%caphash;
+		$rethash->{'capabilities'} = \%caphash;
 		return 1;
-	} else {
-		# at least one capability has to be defined for a capability
-		# packet to be counted as valid
-		return 0;
 	}
+	
+	# at least one capability has to be defined for a capability
+	# packet to be counted as valid
+	return 0;
 }
 
 # Parse a message
@@ -1370,25 +1353,25 @@ sub _message_parse($$$) {
 		my $message = $2;
 		# remove trailing spaces from the recipient
 		$destination =~ s/\s+$//;
-		$rethash->{destination} = $destination;
+		$rethash->{'destination'} = $destination;
 		# check whether this is an ack
 		if ($message =~ /^ack([A-Za-z0-9}]{1,5})\s*$/o) {
 			# trailing spaces are allowed because some
 			# broken software insert them..
-			$rethash->{messageack} = $1;
+			$rethash->{'messageack'} = $1;
 			return 1;
 		}
 		# check whether this is a message reject
 		if ($message =~ /^rej([A-Za-z0-9}]{1,5})\s*$/o) {
-			$rethash->{messagerej} = $1;
+			$rethash->{'messagerej'} = $1;
 			return 1;
 		}
 		# separate message-id from the body, if present
 		if ($message =~ /^([^{]*)\{([A-Za-z0-9}]{1,5})\s*$/o) {
-			$rethash->{message} = $1;
-			$rethash->{messageid} = $2;
+			$rethash->{'message'} = $1;
+			$rethash->{'messageid'} = $2;
 		} else {
-			$rethash->{message} = $message;
+			$rethash->{'message'} = $message;
 		}
 		# catch telemetry messages
 		if ($message =~ /^(BITS|PARM|UNIT|EQNS)\./i) {
@@ -1419,11 +1402,11 @@ sub _item_to_decimal($$$) {
 	# Parse the item up to the location
 	if ($packet =~ /^\)([\x20\x22-\x5e\x60-\x7e]{3,9})(!|_)/o) {
 		# hash member 'itemname' signals an item
-		$rethash->{itemname} = $1;
+		$rethash->{'itemname'} = $1;
 		if ($2 eq '!') {
-			$rethash->{alive} = 1;
+			$rethash->{'alive'} = 1;
 		} else {
-			$rethash->{alive} = 0;
+			$rethash->{'alive'} = 0;
 		}
 	} else {
 		_a_err($rethash, 'item_inv');
@@ -1431,7 +1414,7 @@ sub _item_to_decimal($$$) {
 	}
 
 	# Forward the location parsing onwards
-	my $locationoffset = 2 + length($rethash->{itemname});
+	my $locationoffset = 2 + length($rethash->{'itemname'});
 	my $locationchar = substr($packet, $locationoffset, 1);
 	my $retval = undef;
 	if ($locationchar =~ /^[\/\\A-Za-j]$/o) {
@@ -1452,7 +1435,7 @@ sub _item_to_decimal($$$) {
 	# Check the APRS data extension and possible comments,
 	# unless it is a weather report (we don't want erroneus
 	# course/speed figures and weather in the comments..)
-	if ($rethash->{symbolcode} ne '_') {
+	if ($rethash->{'symbolcode'} ne '_') {
 		_comments_to_decimal(substr($packet, $locationoffset), $srccallsign, $rethash);
 	}
 
@@ -1486,7 +1469,7 @@ sub _normalpos_to_decimal($$$) {
 		my $sind = uc($3);
 		my $wind = uc($7);
 		$symboltable = $4;
-		$rethash->{symbolcode} = $8;
+		$rethash->{'symbolcode'} = $8;
 		if ($sind eq 'S') {
 			$issouth = 1;
 		}
@@ -1519,7 +1502,7 @@ sub _normalpos_to_decimal($$$) {
 	$tmplat =~ s/\.//; # remove the period
 	# Count the amount of spaces at the end
 	if ($tmplat =~ /^(\d{0,4})( {0,4})$/io) {
-		$rethash->{posambiguity} = length($2);
+		$rethash->{'posambiguity'} = length($2);
 	} else {
 		_a_err($rethash, 'loc_amb_inv');
 		return 0;
@@ -1527,7 +1510,7 @@ sub _normalpos_to_decimal($$$) {
 
 	my $latitude = undef;
 	my $longitude = undef;
-	if ($rethash->{posambiguity} == 0) {
+	if ($rethash->{'posambiguity'} == 0) {
 		# No position ambiguity. Check longitude for invalid spaces
 		if ($lon_min =~ / /io) {
 			_a_err($rethash, 'loc_amb_inv', 'longitude 0');
@@ -1535,11 +1518,11 @@ sub _normalpos_to_decimal($$$) {
 		}
 		$latitude = $lat_deg + ($lat_min/60);
 		$longitude = $lon_deg + ($lon_min/60);
-	} elsif ($rethash->{posambiguity} == 4) {
+	} elsif ($rethash->{'posambiguity'} == 4) {
 		# disregard the minutes and add 0.5 to the degree values
 		$latitude = $lat_deg + 0.5;
 		$longitude = $lon_deg + 0.5;
-	} elsif ($rethash->{posambiguity} == 1) {
+	} elsif ($rethash->{'posambiguity'} == 1) {
 		# the last digit is not used
 		$lat_min = substr($lat_min, 0, 4);
 		$lon_min = substr($lon_min, 0, 4);
@@ -1549,7 +1532,7 @@ sub _normalpos_to_decimal($$$) {
 		}
 		$latitude = $lat_deg + (($lat_min + 0.05)/60);
 		$longitude = $lon_deg + (($lon_min + 0.05)/60);
-	} elsif ($rethash->{posambiguity} == 2) {
+	} elsif ($rethash->{'posambiguity'} == 2) {
 		# the minute decimals are not used
 		$lat_min = substr($lat_min, 0, 2);
 		$lon_min = substr($lon_min, 0, 2);
@@ -1559,10 +1542,10 @@ sub _normalpos_to_decimal($$$) {
 		}
 		$latitude = $lat_deg + (($lat_min + 0.5)/60);
 		$longitude = $lon_deg + (($lon_min + 0.5)/60);
-	} elsif ($rethash->{posambiguity} == 3) {
+	} elsif ($rethash->{'posambiguity'} == 3) {
 		# the single minutes are not used
-		$lat_min = substr($lat_min, 0, 1) . "5";
-		$lon_min = substr($lon_min, 0, 1) . "5";
+		$lat_min = substr($lat_min, 0, 1) . '5';
+		$lon_min = substr($lon_min, 0, 1) . '5';
 		if ($lat_min =~ / /io || $lon_min =~ / /io) {
 			_a_err($rethash, 'loc_amb_inv', 'lat/lon 3');
 			return 0;
@@ -1582,11 +1565,11 @@ sub _normalpos_to_decimal($$$) {
 		$longitude = 0 - $longitude;
 	}
 	# Store the locations
-	$rethash->{latitude} = $latitude;
-	$rethash->{longitude} = $longitude;
+	$rethash->{'latitude'} = $latitude;
+	$rethash->{'longitude'} = $longitude;
 	# Calculate position resolution based on position ambiguity
 	# calculated above.
-	$rethash->{posresolution} = _get_posresolution(2 - $rethash->{posambiguity});
+	$rethash->{'posresolution'} = _get_posresolution(2 - $rethash->{'posambiguity'});
 
 	# Parse possible APRS data extension
 	# afterwards along with comments
@@ -1602,6 +1585,8 @@ sub _mice_to_decimal($$$$$) {
 	# We only want the base callsign
 	$dstcallsign =~ s/-\d+$//;
 
+	$rethash->{'format'} = 'mice';
+	
 	# Check the format
 	if (length($packet) < 8 || length($dstcallsign) != 6) {
 		# too short packet to be mic-e
@@ -1614,6 +1599,7 @@ sub _mice_to_decimal($$$$$) {
 		_a_err($rethash, 'mice_inv');
 		return 0;
 	}
+	
 	# check the information field (longitude, course, speed and
 	# symbol table and code are checked). Not bullet proof..
 	my $mice_fixed;
@@ -1639,8 +1625,6 @@ sub _mice_to_decimal($$$$$) {
 		}
 	}
 
-	$rethash->{'format'} = 'mice';
-	
 	# First do the destination callsign
 	# (latitude, message bits, N/S and W/E indicators and long. offset)
 
@@ -1656,10 +1640,10 @@ sub _mice_to_decimal($$$$$) {
 			_a_err($rethash, 'mice_amb_large');
 			return 0;
 		}
-		$rethash->{posambiguity} = $amount;
+		$rethash->{'posambiguity'} = $amount;
 		# Calculate position resolution based on position ambiguity
 		# calculated above.
-		$rethash->{posresolution} = _get_posresolution(2 - $amount);
+		$rethash->{'posresolution'} = _get_posresolution(2 - $amount);
 	} else {
 		# no digits in the beginning, baaad..
 		# or the ambiguity digits weren't continuous
@@ -1669,7 +1653,7 @@ sub _mice_to_decimal($$$$$) {
 
 	# convert the latitude to the midvalue if position ambiguity
 	# is used
-	if ($rethash->{posambiguity} >= 4) {
+	if ($rethash->{'posambiguity'} >= 4) {
 		# the minute is between 0 and 60, so
 		# the middle point is 30
 		$tmplat =~ s/_/3/;
@@ -1681,7 +1665,7 @@ sub _mice_to_decimal($$$$$) {
 	# get the degrees
 	my $latitude = substr($tmplat, 0, 2);
 	# the minutes
-	my $latminutes = substr($tmplat, 2, 2) . "." . substr($tmplat, 4, 2);
+	my $latminutes = substr($tmplat, 2, 2) . '.' . substr($tmplat, 4, 2);
 	# convert the minutes to decimal degrees and combine
 	$latitude += ($latminutes/60);
 
@@ -1693,7 +1677,7 @@ sub _mice_to_decimal($$$$$) {
 	}
 
 	# Latitude is finally complete, so store it
-	$rethash->{latitude} = $latitude;
+	$rethash->{'latitude'} = $latitude;
 
 	# Get the message bits. 1 is standard one-bit and
 	# 2 is custom one-bit. %mice_messagetypes provides
@@ -1703,7 +1687,7 @@ sub _mice_to_decimal($$$$$) {
 	$mbitstring =~ tr/L/0/;
 	$mbitstring =~ tr/P-Z/1/;
 	$mbitstring =~ tr/A-K/2/;
-	$rethash->{mbits} = $mbitstring;
+	$rethash->{'mbits'} = $mbitstring;
 
 	# Decode the longitude, the first three bytes of the
 	# body after the data type indicator.
@@ -1725,26 +1709,26 @@ sub _mice_to_decimal($$$$$) {
 		$longminutes -= 60;
 	}
 	# ... and minute decimals
-	$longminutes = sprintf("%02d.%02d",
+	$longminutes = sprintf('%02d.%02d',
 		$longminutes,
 		ord(substr($packet, 2, 1)) - 28);
 	# apply position ambiguity to longitude
-	if ($rethash->{posambiguity} == 4) {
+	if ($rethash->{'posambiguity'} == 4) {
 		# minute is unused -> add 0.5 degrees to longitude
 		$longitude += 0.5;
-	} elsif ($rethash->{posambiguity} == 3) {
-		my $lontmp = substr($longminutes, 0, 1) . "5";
+	} elsif ($rethash->{'posambiguity'} == 3) {
+		my $lontmp = substr($longminutes, 0, 1) . '5';
 		$longitude += ($lontmp/60);
-	} elsif ($rethash->{posambiguity} == 2) {
-		my $lontmp = substr($longminutes, 0, 2) . ".5";
+	} elsif ($rethash->{'posambiguity'} == 2) {
+		my $lontmp = substr($longminutes, 0, 2) . '.5';
 		$longitude += ($lontmp/60);
-	} elsif ($rethash->{posambiguity} == 1) {
-		my $lontmp = substr($longminutes, 0, 4) . "5";
+	} elsif ($rethash->{'posambiguity'} == 1) {
+		my $lontmp = substr($longminutes, 0, 4) . '5';
 		$longitude += ($lontmp/60);
-	} elsif ($rethash->{posambiguity} == 0) {
+	} elsif ($rethash->{'posambiguity'} == 0) {
 		$longitude += ($longminutes/60);
 	} else {
-		_a_err($rethash, 'mice_amb_odd', $rethash->{posambiguity});
+		_a_err($rethash, 'mice_amb_odd', $rethash->{'posambiguity'});
 		return 0;
 	}
 
@@ -1755,7 +1739,7 @@ sub _mice_to_decimal($$$$$) {
 	}
 
 	# Longitude is finally complete, so store it
-	$rethash->{longitude} = $longitude;
+	$rethash->{'longitude'} = $longitude;
 
 	# Now onto speed and course
 	my $speed = (ord(substr($packet, 3, 1)) - 28) * 10;
@@ -1773,25 +1757,25 @@ sub _mice_to_decimal($$$$$) {
 		$course -= 400;
 	}
 	# convert speed to km/h and store
-	$rethash->{speed} = $speed * $knot_to_kmh;
+	$rethash->{'speed'} = $speed * $knot_to_kmh;
 	# also zero course is saved, which means unknown
 	if ($course >= 0) {
-		$rethash->{course} = $course;
+		$rethash->{'course'} = $course;
 	}
 
 	# save the symbol table and code
-	$rethash->{symbolcode} = substr($packet, 6, 1);
-	$rethash->{symboltable} = $symboltable;
+	$rethash->{'symbolcode'} = substr($packet, 6, 1);
+	$rethash->{'symboltable'} = $symboltable;
 
 	# Check for possible altitude and comment data.
-	# It is base-91 coded and in format "xxx}" where
+	# It is base-91 coded and in format 'xxx}' where
 	# x are the base-91 digits in meters, origin is 10000 meters
 	# below sea.
 	if (length($packet) > 8) {
 		my $rest = substr($packet, 8);
 		# check for altitude
 		if ($rest =~ /^(.*?)([\x21-\x7b])([\x21-\x7b])([\x21-\x7b])\}(.*)$/o) {
-			$rethash->{altitude} = (
+			$rethash->{'altitude'} = (
 				(ord($2) - 33) * 91 ** 2 +
 				(ord($3) - 33) * 91 +
 				(ord($4) - 33)) - 10000;
@@ -1851,18 +1835,18 @@ sub _compressed_to_decimal($$$)
 	my $comptype = ord(substr($packet, 12, 1)) - 33;
 
 	# save the symbol table and code
-	$rethash->{symbolcode} = $symbolcode;
+	$rethash->{'symbolcode'} = $symbolcode;
 	# the symbol table values a..j are really 0..9
 	$symboltable =~ tr/a-j/0-9/;
-	$rethash->{symboltable} = $symboltable;
+	$rethash->{'symboltable'} = $symboltable;
 
 	# calculate latitude and longitude
-	$rethash->{latitude} = 90 -
+	$rethash->{'latitude'} = 90 -
 		(($lat1 * 91 ** 3 +
 		$lat2 * 91 ** 2 +
 		$lat3 * 91 +
 		$lat4) / 380926);
-	$rethash->{longitude} = -180 +
+	$rethash->{'longitude'} = -180 +
 		(($long1 * 91 ** 3 +
 		$long2 * 91 ** 2 +
 		$long3 * 91 +
@@ -1870,14 +1854,14 @@ sub _compressed_to_decimal($$$)
         # save best-case position resolution in meters
         # 1852 meters * 60 minutes in a degree * 180 degrees
         # / 91 ** 4
-        $rethash->{posresolution} = 0.291;
+        $rethash->{'posresolution'} = 0.291;
 
 	# GPS fix status, only if csT is used
 	if ($c1 != -1) {
 		if (($comptype & 0x20) == 0x20) {
-			$rethash->{gpsfixstatus} = 1;
+			$rethash->{'gpsfixstatus'} = 1;
 		} else {
-			$rethash->{gpsfixstatus} = 0;
+			$rethash->{'gpsfixstatus'} = 0;
 		}
 	}
 
@@ -1893,21 +1877,21 @@ sub _compressed_to_decimal($$$)
 		# cs is altitude
 		my $cs = $c1 * 91 + $s1;
 		# convert directly to meters
-		$rethash->{altitude} = (1.002 ** $cs) * 0.3048;
+		$rethash->{'altitude'} = (1.002 ** $cs) * 0.3048;
 	} elsif ($c1 >= 0 && $c1 <= 89) {
 		if ($c1 == 0) {
 			# special case of north, APRS spec
 			# uses zero for unknown and 360 for north.
 			# so remember to convert north here.
-			$rethash->{course} = 360;
+			$rethash->{'course'} = 360;
 		} else {
-			$rethash->{course} = $c1 * 4;
+			$rethash->{'course'} = $c1 * 4;
 		}
 		# convert directly to km/h
-		$rethash->{speed} = (1.08 ** $s1 - 1) * $knot_to_kmh;
+		$rethash->{'speed'} = (1.08 ** $s1 - 1) * $knot_to_kmh;
 	} elsif ($c1 == 90) {
 		# convert directly to km
-		$rethash->{radiorange} = (2 * 1.08 ** $s1) * $mph_to_kmh;
+		$rethash->{'radiorange'} = (2 * 1.08 ** $s1) * $mph_to_kmh;
 	}
 
 	return 1;
@@ -1928,17 +1912,17 @@ sub _dao_parse($$$)
 	my ($latoff, $lonoff) = undef;
 	if ($daocandidate =~ /^([A-Z])(\d)(\d)$/o) {
 		# human readable (datum byte A...Z)
-		$rethash->{daodatumbyte} = $1;
-		$rethash->{posresolution} = _get_posresolution(3);
+		$rethash->{'daodatumbyte'} = $1;
+		$rethash->{'posresolution'} = _get_posresolution(3);
 		$latoff = $2 * 0.001 / 60;
 		$lonoff = $3 * 0.001 / 60;
 
 	} elsif ($daocandidate =~ /^([a-z])([\x21-\x7b])([\x21-\x7b])$/o) {
 		# base-91 (datum byte a...z)
 		# store the datum in upper case, still
-		$rethash->{daodatumbyte} = uc($1);
+		$rethash->{'daodatumbyte'} = uc($1);
 		# close enough.. not exact:
-		$rethash->{posresolution} = _get_posresolution(4);
+		$rethash->{'posresolution'} = _get_posresolution(4);
 		# do proper scaling of base-91 values
 		$latoff = (ord($2) - 33) / 91 * 0.01 / 60;
 		$lonoff = (ord($3) - 33) / 91 * 0.01 / 60;
@@ -1949,7 +1933,7 @@ sub _dao_parse($$$)
 		if ($daodatumbyte =~ /^[a-z]$/o) {
 			$daodatumbyte = uc($daodatumbyte);
 		}
-		$rethash->{daodatumbyte} = $daodatumbyte;
+		$rethash->{'daodatumbyte'} = $daodatumbyte;
 		return 1;
 
 	} else {
@@ -1957,15 +1941,15 @@ sub _dao_parse($$$)
 	}
 
 	# check N/S and E/W
-	if ($rethash->{latitude} < 0) {
-		$rethash->{latitude} -= $latoff;
+	if ($rethash->{'latitude'} < 0) {
+		$rethash->{'latitude'} -= $latoff;
 	} else {
-		$rethash->{latitude} += $latoff;
+		$rethash->{'latitude'} += $latoff;
 	}
-	if ($rethash->{longitude} < 0) {
-		$rethash->{longitude} -= $lonoff;
+	if ($rethash->{'longitude'} < 0) {
+		$rethash->{'longitude'} -= $lonoff;
 	} else {
-		$rethash->{longitude} += $lonoff;
+		$rethash->{'longitude'} += $lonoff;
 	}
 	return 1;
 }
@@ -1985,19 +1969,15 @@ Please note that it's very common to use invalid callsigns on the APRS-IS.
 =cut
 
 sub check_ax25_call($) {
-	my $call = shift @_;
-
-	if ($call =~ /^([A-Z0-9]{1,6})(-\d{1,2}|)$/o) {
-		my $basecall = $1;
-		my $ssid = $2;
-		if (length($ssid) == 0) {
-			return $basecall;
+	if ($_[0] =~ /^([A-Z0-9]{1,6})(-\d{1,2}|)$/o) {
+		if (length($2) == 0) {
+			return $1;
 		} else {
 			# convert SSID to positive and numeric
-			$ssid = 0 - $ssid;
+			my $ssid = 0 - $2;
 			if ($ssid < 16) {
 				# 15 is maximum in AX.25
-				return $basecall . "-" . $ssid;
+				return $1 . '-' . $ssid;
 			}
 		}
 	}
@@ -2052,13 +2032,12 @@ sub _wx_parse($$)
 {
 	my ($s, $rh) = @_;
 	
-	my $initial = $s;
+	#my $initial = $s;
 	
 	# 257/007g013t055r000P000p000h56b10160v31
 	# 045/000t064r000p000h35b10203.open2300v1.10
 	# 175/007g007p...P000r000t062h32b10224wRSW
 	my %w;
-	my $ok = 0;
 	my ($wind_dir, $wind_speed, $temp, $wind_gust) = ('', '', '', '');
 	if ($s =~ s/^_{0,1}([\d \.\-]{3})\/([\d \.]{3})g([\d \.]+)t(-{0,1}[\d \.]+)//
 	    || $s =~ s/^_{0,1}c([\d \.\-]{3})s([\d \.]{3})g([\d \.]+)t(-{0,1}[\d \.]+)//) {
@@ -2164,9 +2143,13 @@ sub _wx_parse_peet_packet($$$)
 		if ($1 eq '----') {
 			push @vals, undef;
 		} else {
-			# signed 16-bit integers in network (big-endian) order
-			# encoded in hex, high nybble first
-			push @vals, unpack('n!', pack('H*', $1));
+			# Signed 16-bit integers in network (big-endian) order
+			# encoded in hex, high nybble first.
+			# Perl 5.10 unpack supports n! for signed ints, 5.8
+			# requires tricks like this:
+			my $v = unpack('n', pack('H*', $1));
+			
+			push @vals, ($v < 32768) ? $v : $v - 65536;
 		}
 	}
 	return 0 if (!@vals);
@@ -2226,7 +2209,13 @@ sub _wx_parse_peet_logging($$$)
 		if ($1 eq '----') {
 			push @vals, undef;
 		} else {
-			push @vals, hex $1;
+			# Signed 16-bit integers in network (big-endian) order
+			# encoded in hex, high nybble first.
+			# Perl 5.10 unpack supports n! for signed ints, 5.8
+			# requires tricks like this:
+			my $v = unpack('n', pack('H*', $1));
+			
+			push @vals, ($v < 32768) ? $v : $v - 65536;
 		}
 	}
 	return 0 if (!@vals);
@@ -2293,7 +2282,7 @@ sub _telemetry_parse($$)
 		$t{'seq'} = $1;
 		my @vals = ( "$2$3", "$4$5", "$6$7", "$8$9", "$10$11" );
 		for (my $i = 0; $i <= $#vals; $i++) {
-			$vals[$i] = $vals[$i] eq '' ? 0 : sprintf("%.2f", $vals[$i]);
+			$vals[$i] = $vals[$i] eq '' ? 0 : sprintf('%.2f', $vals[$i]);
 			if ($vals[$i] >= 999999 || $vals[$i] <= -999999) {
 				_a_err($rh, 'tlm_large');
 				return 0;
@@ -2312,7 +2301,7 @@ sub _telemetry_parse($$)
 	}
 	
 	$rh->{'telemetry'} = \%t;
-	#warn "ok: " . Dumper(\%t);
+	#warn 'ok: ' . Dumper(\%t);
 	return 1;
 }
 
@@ -2356,15 +2345,10 @@ my $ret = parseaprs("OH2XYZ>APRS,RELAY*,WIDE:!2345.56N/12345.67E-PHG0123 hi",
 =cut
 
 sub parseaprs($$;%) {
-	my $packet = shift @_;
-	my $rethash = shift @_;
-	my %options = @_;
+	my($packet, $rethash, %options) = @_;
 	my $isax25 = ($options{'isax25'}) ? 1 : 0;
 	
-	# Remove characters that are never valid in APRS packets
-	## no sanitizing anymore..
-	##$packet =~ tr/\x1c-\x7f//cd;
-	if (not(defined($packet))) {
+	if (!defined $packet) {
 		_a_err($rethash, 'packet_no');
 		return 0;
 	}
@@ -2376,24 +2360,20 @@ sub parseaprs($$;%) {
 	# Separate the header and packet body on the first
 	# colon.
 	my ($header, $body) = split(/:/, $packet, 2);
-	# Don't upcase the header because we can't distinguish
-	# the q-construct anymore
-	## $header = uc($header);
 
 	# If no body, skip
-	if (not(defined($body))) {
+	if (!defined $body) {
 		_a_err($rethash, 'packet_nobody');
 		return 0;
 	}
 
 	# Save all the parts of the packet
-	$rethash->{origpacket} = $packet;
-	$rethash->{header} = $header;
-	$rethash->{body} = $body;
+	$rethash->{'origpacket'} = $packet;
+	$rethash->{'header'} = $header;
+	$rethash->{'body'} = $body;
 
 	# Source callsign, put the rest in $rest
-	my $srccallsign = undef;
-	my $rest = undef;
+	my($srccallsign, $rest);
 	if ($header =~ /^([A-Z0-9-]{1,9})>(.*)$/io) {
 		$rest = $2;
 		if ($isax25 == 0) {
@@ -2411,11 +2391,10 @@ sub parseaprs($$;%) {
 		_a_err($rethash, 'srccall_badchars');
 		return 0;
 	}
-	$rethash->{srccallsign} = $srccallsign;
+	$rethash->{'srccallsign'} = $srccallsign;
 
 	# Get the destination callsign and digipeaters.
 	# Only TNC-2 format is supported, AEA (with digipeaters) is not.
-	my $dstcallsign = undef;
 	my @pathcomponents = split(/,/, $rest);
 	# More than 9 (dst callsign + 8 digipeaters) path components
 	# from AX.25 or less than 1 from anywhere is invalid.
@@ -2431,20 +2410,21 @@ sub parseaprs($$;%) {
 		_a_err($rethash, 'dstcall_none');
 		return 0;
 	}
+	
 	# Destination callsign. We are strict here, there
 	# should be no need to use a non-AX.25 compatible
 	# destination callsigns in the APRS-IS.
-	$dstcallsign = check_ax25_call(shift(@pathcomponents));
-	if (not(defined($dstcallsign))) {
+	my $dstcallsign = check_ax25_call(shift @pathcomponents);
+	if (!defined $dstcallsign) {
 		_a_err($rethash, 'dstcall_noax25');
 		return 0;
 	}
-	$rethash->{dstcallsign} = $dstcallsign;
+	$rethash->{'dstcallsign'} = $dstcallsign;
 
 	# digipeaters
 	my @digipeaters;
-	foreach my $digi (@pathcomponents) {
-		if ($isax25 == 1) {
+	if ($isax25 == 1) {
+		foreach my $digi (@pathcomponents) {
 			if ($digi =~ /^([A-Z0-9-]+)(\*|)$/io) {
 				my $digitested = check_ax25_call(uc($1));
 				if (not(defined($digitested))) {
@@ -2456,31 +2436,28 @@ sub parseaprs($$;%) {
 					$wasdigied = 1;
 				}
 				# add it to the digipeater array
-				push(@digipeaters, { call => $digitested,
-					wasdigied => $wasdigied });
+				push(@digipeaters, { 'call' => $digitested,
+					'wasdigied' => $wasdigied });
 			} else {
 				_a_err($rethash, 'digicall_badchars');
 				return 0;
 			}
-		} else {
+		}
+	} else {
+		foreach my $digi (@pathcomponents) {
 			# From the internet. Apply the same checks as for
 			# APRS-IS packet originator.
-			if ($digi =~ /^([A-Z0-9-]{1,9})(\*|)$/io) {
-				my $call = $1;
-				my $wasdigied = 0;
-				if ($2 eq '*') {
-					$wasdigied = 1;
-				}
-				push(@digipeaters, { call => $call,
-					wasdigied => $wasdigied });
+			if ($digi =~ /^([A-Z0-9a-z-]{1,9})(\*|)$/o) {
+				push(@digipeaters, { 'call' => $1,
+					'wasdigied' => ($2 eq '*') ? 1 : 0 });
 			} else {
 				_a_err($rethash, 'digicall_badchars');
 				return 0;
 			}
 		}
 	}
-	$rethash->{digipeaters} = \@digipeaters;
-
+	$rethash->{'digipeaters'} = \@digipeaters;
+	
 	# So now we have source and destination callsigns and
 	# digipeaters parsed and ok. Move on to the body.
 
@@ -2499,8 +2476,8 @@ sub parseaprs($$;%) {
 		# mic-encoder data
 		# minimum body length 9 chars
 		if ($paclen >= 9) {
-			$retval = _mice_to_decimal(substr($body, 1), $dstcallsign, $srccallsign, $rethash, \%options);
-			$rethash->{type} = "location";
+			$rethash->{'type'} = 'location';
+			return _mice_to_decimal(substr($body, 1), $dstcallsign, $srccallsign, $rethash, \%options);
 		}
 
 	# Normal or compressed location packet, with or without
@@ -2510,26 +2487,44 @@ sub parseaprs($$;%) {
 		 $packettype eq '/' ||
 		 $packettype eq '@') {
 		# with or without messaging
-		if ($packettype eq '!' ||
-		    $packettype eq '/') {
-			$rethash->{messaging} = 0;
+		if ($packettype eq '!' || $packettype eq '/') {
+			$rethash->{'messaging'} = 0;
 		} else {
-			$rethash->{messaging} = 1;
+			$rethash->{'messaging'} = 1;
 		}
+		
 		if ($paclen >= 14) {
-			$rethash->{type} = "location";
+			$rethash->{'type'} = 'location';
 			if ($packettype eq '/' || $packettype eq '@') {
 				# With a prepended timestamp, check it and jump over.
 				# If the timestamp is invalid, it will be set to zero.
-				$rethash->{timestamp} = _parse_timestamp(substr($body, 1, 7));
-				if ($rethash->{timestamp} == 0) {
+				$rethash->{'timestamp'} = _parse_timestamp(substr($body, 1, 7));
+				if ($rethash->{'timestamp'} == 0) {
 					_a_warn($rethash, 'timestamp_inv_loc');
 				}
 				$body = substr($body, 7);
 			}
 			$body = substr($body, 1); # remove the first character
-			my $poschar = substr($body, 0, 1);
-			if ($poschar =~ /^[\/\\A-Za-j]$/o) {
+			# grab the ascii value of the first byte of body
+			my $poschar = ord($body);
+			if ($poschar >= 48 && $poschar <= 57) {
+				# poschar is a digit... normal uncompressed position
+				if (length($body) >= 19) {
+					$retval = _normalpos_to_decimal($body, $srccallsign, $rethash);
+					# continue parsing with possible comments, but only
+					# if this is not a weather report (course/speed mixup,
+					# weather as comment)
+					# if the comments don't parse, don't raise an error
+					if ($retval == 1 && $rethash->{'symbolcode'} ne '_') {
+						_comments_to_decimal(substr($body, 19), $srccallsign, $rethash);
+					} else {
+						#warn "maybe a weather report?\n" . substr($body, 19) . "\n";
+						_wx_parse(substr($body, 19), $rethash);
+					}
+				}
+			} elsif ($poschar == 47 || $poschar == 92
+			    || ($poschar >= 65 && $poschar <= 90) || ($poschar >= 97 && $poschar <= 106) ) {
+				# $poschar =~ /^[\/\\A-Za-j]$/o
 				# compressed position
 				if (length($body) >= 13) {
 					$retval = _compressed_to_decimal(substr($body, 0, 13), $srccallsign, $rethash);
@@ -2537,39 +2532,41 @@ sub parseaprs($$;%) {
 					# if this is not a weather report (course/speed mixup,
 					# weather as comment)
 					# if the comments don't parse, don't raise an error
-					if ($retval == 1 && $rethash->{symbolcode} ne '_') {
+					if ($retval == 1 && $rethash->{'symbolcode'} ne '_') {
 						_comments_to_decimal(substr($body, 13), $srccallsign, $rethash);
 					} else {
 						#warn "maybe a weather report?\n" . substr($body, 13) . "\n";
 						_wx_parse(substr($body, 13), $rethash);
 					}
 				}
-			} elsif ($poschar =~ /^\d$/io) {
-				# normal uncompressed position
-				if (length($body) >= 19) {
-					$retval = _normalpos_to_decimal($body, $srccallsign, $rethash);
-					# continue parsing with possible comments, but only
-					# if this is not a weather report (course/speed mixup,
-					# weather as comment)
-					# if the comments don't parse, don't raise an error
-					if ($retval == 1 && $rethash->{symbolcode} ne '_') {
-						_comments_to_decimal(substr($body, 19), $srccallsign, $rethash);
-					} else {
-						#warn "maybe a weather report?\n" . substr($body, 19) . "\n";
-						_wx_parse(substr($body, 19), $rethash);
-					}
-				}
-			} elsif ($poschar eq '!') {
+			} elsif ($poschar == 33) { # '!'
 				# Weather report from Ultimeter 2000
-				$rethash->{type} = "wx";
-				$retval = _wx_parse_peet_logging(substr($body, 1), $srccallsign, $rethash);
+				$rethash->{'type'} = 'wx';
+				return _wx_parse_peet_logging(substr($body, 1), $srccallsign, $rethash);
 			} else {
 				_a_err($rethash, 'packet_invalid');
-				$retval = 0;
+				return 0;
 			}
 		} else {
 			_a_err($rethash, 'packet_short', 'location');
-			$retval = 0;
+			return 0;
+		}
+
+	# Weather report
+	} elsif ($packettype eq '_') {
+		if ($body =~ /_(\d{8})c[\- \.\d]{1,3}s[\- \.\d]{1,3}/) {
+			$rethash->{'type'} = 'wx';
+			return _wx_parse(substr($body, 9), $rethash);
+		} else {
+			_a_err($rethash, 'wx_unsupp', 'Positionless');
+			return 0;
+		}
+		
+	# Object
+	} elsif ($packettype eq ';') {
+		if ($paclen >= 31) {
+			$rethash->{'type'} = 'object';
+			return _object_to_decimal($body, $srccallsign, $rethash);
 		}
 
 	# NMEA data
@@ -2578,75 +2575,58 @@ sub parseaprs($$;%) {
 		if (substr($body, 0, 3) eq '$GP') {
 			# dstcallsign can contain the APRS symbol to use,
 			# so read that one too
-			$retval = _nmea_to_decimal(substr($body, 1), $srccallsign, $dstcallsign, $rethash);
-			$rethash->{type} = "location";
+			$rethash->{'type'} = 'location';
+			return _nmea_to_decimal(substr($body, 1), $srccallsign, $dstcallsign, $rethash);
 		} elsif (substr($body, 0, 5) eq '$ULTW') {
-			$rethash->{type} = "wx";
-			$retval = _wx_parse_peet_packet(substr($body, 5), $srccallsign, $rethash);
-		}
-
-	# Object
-	} elsif ($packettype eq ';') {
-		if ($paclen >= 31) {
-			$rethash->{type} = "object";
-			$retval = _object_to_decimal($body, $srccallsign, $rethash);
+			$rethash->{'type'} = 'wx';
+			return _wx_parse_peet_packet(substr($body, 5), $srccallsign, $rethash);
 		}
 
 	# Item
 	} elsif ($packettype eq ')') {
 		if ($paclen >= 18) {
-			$rethash->{type} = "item";
-			$retval = _item_to_decimal($body, $srccallsign, $rethash);
+			$rethash->{'type'} = 'item';
+			return _item_to_decimal($body, $srccallsign, $rethash);
 		}
 
 	# Message, bulletin or an announcement
 	} elsif ($packettype eq ':') {
 		if ($paclen >= 11) {
 			# all are labeled as messages for the time being
-			$rethash->{type} = "message";
-			$retval = _message_parse($body, $srccallsign, $rethash);
+			$rethash->{'type'} = 'message';
+			return _message_parse($body, $srccallsign, $rethash);
 		}
 
 	# Station capabilities
 	} elsif ($packettype eq '<') {
 		# at least one other character besides '<' required
 		if ($paclen >= 2) {
-			$rethash->{type} = "capabilities";
-			$retval = _capabilities_parse(substr($body, 1), $srccallsign, $rethash);
+			$rethash->{'type'} = 'capabilities';
+			return _capabilities_parse(substr($body, 1), $srccallsign, $rethash);
 		}
 
 	# Status reports
 	} elsif ($packettype eq '>') {
 		# we can live with empty status reports
 		if ($paclen >= 1) {
-			$rethash->{type} = "status";
-			$retval = _status_parse(substr($body, 1), $srccallsign, $rethash);
+			$rethash->{'type'} = 'status';
+			return _status_parse(substr($body, 1), $srccallsign, $rethash);
 		}
 	
-	# Weather report
-	} elsif ($packettype eq '_') {
-		if ($body =~ /_(\d{8})c[\- \.\d]{1,3}s[\- \.\d]{1,3}/) {
-			$rethash->{type} = "wx";
-			$retval = _wx_parse(substr($body, 9), $rethash);
-		} else {
-			_a_err($rethash, 'wx_unsupp', 'Positionless');
-			$retval = 0;
-		}
-		
 	# Telemetry
 	} elsif ($body =~ /^T#(.*?),(.*)$/) {
-		$rethash->{type} = "telemetry";
-		$retval = _telemetry_parse(substr($body, 2), $rethash);
+		$rethash->{'type'} = 'telemetry';
+		return _telemetry_parse(substr($body, 2), $rethash);
 		
 	# DX spot
 	} elsif ($body =~ /^DX\s+de\s+(.*?)\s*[:>]\s*(.*)$/i) {
-		$rethash->{type} = "dx";
-		$retval = _dx_parse($1, $2, $rethash);
+		$rethash->{'type'} = 'dx';
+		return _dx_parse($1, $2, $rethash);
 		
 	# Experimental
 	} elsif ($body =~ /^{{/i) {
 		_a_err($rethash, 'exp_unsupp');
-		$retval = 0;
+		return 0;
 		
 	# When all else fails, try to look for a !-position that can
 	# occur anywhere within the 40 first characters according
@@ -2654,8 +2634,8 @@ sub parseaprs($$;%) {
 	} else {
 		my $pos = index($body, '!');
 		if ($pos >= 0 && $pos <= 39) {
-			$rethash->{type} = "location";
-			$rethash->{messaging} = 0;
+			$rethash->{'type'} = 'location';
+			$rethash->{'messaging'} = 0;
 			my $pchar = substr($body, $pos + 1, 1);
 			if ($pchar =~ /^[\/\\A-Za-j]$/o) {
 				# compressed position
@@ -2663,7 +2643,7 @@ sub parseaprs($$;%) {
 					$retval = _compressed_to_decimal(substr($body, $pos + 1, 13), $srccallsign, $rethash);
 					# check the APRS data extension and comment,
 					# if not weather data
-					if ($retval == 1 && $rethash->{symbolcode} ne '_') {
+					if ($retval == 1 && $rethash->{'symbolcode'} ne '_') {
 						_comments_to_decimal(substr($body, $pos + 14), $srccallsign, $rethash);
 					}
 				}
@@ -2673,104 +2653,11 @@ sub parseaprs($$;%) {
 					$retval = _normalpos_to_decimal(substr($body, $pos + 1), $srccallsign, $rethash);
 					# check the APRS data extension and comment,
 					# if not weather data
-					if ($retval == 1 && $rethash->{symbolcode} ne '_') {
+					if ($retval == 1 && $rethash->{'symbolcode'} ne '_') {
 						_comments_to_decimal(substr($body, $pos + 20), $srccallsign, $rethash);
 					}
 				}
 			}
-		}
-	}
-
-	if ($debug > 0) {
-		if ($retval == 1) {
-			print "$srccallsign: ";
-			if ($rethash->{type} eq "message") {
-				if (defined($rethash->{destination})) {
-					print "dest: $rethash->{destination} ";
-				}
-				if (defined($rethash->{messageid})) {
-					print "msgid: $rethash->{messageid} ";
-				}
-				if (defined($rethash->{messageack})) {
-					print "msgack: $rethash->{messageack} ";
-				}
-				if (defined($rethash->{message})) {
-					print "msgtext: \"$rethash->{message}\" ";
-				}
-			}
-			if (defined($rethash->{alive})) {
-				if ($rethash->{alive} == 1) {
-					print "alive ";
-				} elsif ($rethash->{alive} == 0) {
-					print "dead ";
-				} else {
-					print "internal error with alive/dead ";
-				}
-				if (defined($rethash->{objectname})) {
-					print "object \"" . $rethash->{objectname} . "\" ";
-				} elsif (defined($rethash->{itemname})) {
-					print "item \"" . $rethash->{itemname} . "\" ";
-				} else {
-					print "internal error with object/item ";
-				}
-			}
-			if (defined($rethash->{timestamp})) {
-				if ($rethash->{timestamp} > 0) {
-					print "timestamp " . _gettime($rethash->{timestamp}) . " ";
-				} else {
-					print "invalid timestamp ";
-				}
-			}
-			if (defined($rethash->{latitude}) && defined($rethash->{longitude})) {
-				printf("lat: %.6f, long: %.6f", $rethash->{latitude}, $rethash->{longitude});
-			}
-			if (defined($rethash->{mbits})) {
-				if (defined($mice_messagetypes{$rethash->{mbits}})) {
-					print " message: $mice_messagetypes{$rethash->{mbits}}";
-				} else {
-					print " message: unknown";
-				}
-			}
-			if (defined($rethash->{posambiguity})) {
-				print " posambig: $rethash->{posambiguity}";
-			}
-			if (defined($rethash->{gpsfixstatus})) {
-				print " gps status: $rethash->{gpsfixstatus}";
-			}
-			if (defined($rethash->{altitude})) {
-				print " altitude: $rethash->{altitude} meters";
-			}
-			if (defined($rethash->{course})) {
-				if ($rethash->{course} == 0) {
-					print " course: unknown"
-				} else {
-					print " course: $rethash->{course} deg";
-				}
-			}
-			if (defined($rethash->{speed})) {
-				print " speed: $rethash->{speed} km/h";
-			}
-			if (defined($rethash->{radiorange})) {
-				print " radio range: $rethash->{radiorange} kilometers";
-			}
-			if (defined($rethash->{symboltable}) && defined($rethash->{symbolcode})) {
-				print " symbol: " . $rethash->{symboltable} .
-					$rethash->{symbolcode};
-			}
-			if (defined($rethash->{comment})) {
-				print " comment: " . $rethash->{comment};
-			}
-			print "\n";
-		}
-	}
-	# print all invalid/unknown packets through a filter
-	if ($debug > 0) {
-		if ($retval == 0) {
-			$packet =~ tr/[\x00-\x1f]//d;
-			print "prev packet was: $packet\n";
-		} elsif ($retval == -1) {
-			$packet =~ tr/[\x00-\x1f]//d;
-			print "unknown packet type: $packet\n";
 		}
 	}
 
@@ -2786,9 +2673,9 @@ sub parseaprs($$;%) {
 # Checks a callsign for validity and strips
 # trailing spaces out and returns the string.
 # Returns undef on invalid callsign
-sub _kiss_checkcallsign($) {
-	my $callsign = shift @_;
-	if ($callsign =~ /^([A-Z0-9]+)\s*(|-\d+)$/o) {
+sub _kiss_checkcallsign($)
+{
+	if ($_[0] =~ /^([A-Z0-9]+)\s*(|-\d+)$/o) {
 		if (length($2) > 0) {
 			# check the SSID if given
 			if ($2 < -15) {

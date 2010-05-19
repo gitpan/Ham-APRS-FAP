@@ -13,7 +13,7 @@ WriteMakefile(
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (
        ABSTRACT_FROM   => 'FAP.pm', # retrieve abstract from module
-       AUTHOR          => 'Tapio Sokura <tapio.sokura@iki.fi>',
+       AUTHOR          => 'Tapio Sokura <tapio.sokura@iki.fi>, Heikki Hannikainen',
        LICENSE        => 'perl',
       ) : ()
     ),
