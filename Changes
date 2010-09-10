@@ -132,3 +132,12 @@ Revision history for Perl extension Ham::APRS::FAP.
 	  first, and tightening a loop
 	- Put '' around hash key strings (style issue)
 
+1.17  Fri Sep 10 08:10:29 EEST 2010 - Hessu, OH7LZB
+	- Remove / or ' ' from beginning of comment after parsing away PHG,
+	  altitude and other optional data
+	- Allow hexadecimal IPv6 addresses in APRS-IS paths after q..
+	  construct
+	- Added tests for uncompressed packet altitude (negative, too)
+	- Fixed destination callsign based symbol selection for 'BC'
+	- Updated URLs to aprs.org, etc
+

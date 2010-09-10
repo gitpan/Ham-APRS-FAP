@@ -1,5 +1,5 @@
-Ham::APRS::FAP version 1.16
-===========================
+Ham::APRS::FAP
+==============
 
 FAP - Finnish APRS Parser (Fabulous APRS Parser)
 
@@ -50,6 +50,11 @@ THINGS TO DO
  - Implement some more packet construction methods, passing data in a
    hash instead of a long list of parameters
 
+SEE ALSO
+
+  http://pakettiradio.net/libfap/ - C library port of Ham::APRS::FAP
+  http://github.com/kd7lxl/python-libfap - Python bindings for libfap
+
 COPYRIGHT AND LICENCE
 
 Copyright (C) 2005-2010 Tapio Sokura
@@ -57,3 +62,4 @@ Copyright (C) 2007-2010 Heikki Hannikainen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
+

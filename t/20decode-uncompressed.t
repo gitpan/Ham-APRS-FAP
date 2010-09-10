@@ -4,14 +4,14 @@
 
 use Test;
 
-BEGIN { plan tests => 28 + 5 + 3 + 3 + 3 };
+BEGIN { plan tests => 28 + 5 + 3 + 4 + 2 + 3 };
 use Ham::APRS::FAP qw(parseaprs);
 
-my $comment = "/RELAY,WIDE, OH2AP Jarvenpaa";
+my $comment = "RELAY,WIDE, OH2AP Jarvenpaa";
 my $phg = "7220";
 my $srccall = "OH2RDP-1";
 my $dstcall = "BEACON-15";
-my $aprspacket = "$srccall>$dstcall,OH2RDG*,WIDE:!6028.51N/02505.68E#PHG$phg$comment";
+my $aprspacket = "$srccall>$dstcall,OH2RDG*,WIDE:!6028.51N/02505.68E#PHG$phg/$comment";
 my %h;
 my $retval = parseaprs($aprspacket, \%h);
 
@@ -83,7 +83,7 @@ ok($retval, 1, "failed to parse a basic uncompressed packet with extra whitespac
 ok($h{'phg'}, $phg, "incorrect PHG parsing");
 ok($h{'comment'}, $comment, "incomment comment whitespace trimming");
 
-# position with timestamp
+# position with timestamp and altitude
 %h = (); # clean up
 $aprspacket = "YB1RUS-9>APOTC1,WIDE2-2,qAS,YC0GIN-1:/180000z0609.31S/10642.85E>058/010/A=000079 13.8V 15CYB1RUS-9 Mobile Tracker";
 $retval = parseaprs($aprspacket, \%h);
@@ -91,6 +91,15 @@ $retval = parseaprs($aprspacket, \%h);
 ok($retval, 1, "failed to parse an uncompressed packet (with timestamp, position, alt)");
 ok(sprintf('%.5f', $h{'latitude'}), "-6.15517", "incorrect latitude parsing (uncompressed packet with timestamp, position, alt)");
 ok(sprintf('%.5f', $h{'longitude'}), "106.71417", "incorrect longitude parsing (uncompressed packet with timestamp, position, alt)");
+ok(sprintf('%.5f', $h{'altitude'}), "24.07920", "incorrect altitude parsing (uncompressed packet with timestamp, position, alt)");
+
+# position with timestamp and altitude
+%h = (); # clean up
+$aprspacket = "YB1RUS-9>APOTC1,WIDE2-2,qAS,YC0GIN-1:/180000z0609.31S/10642.85E>058/010/A=-00079 13.8V 15CYB1RUS-9 Mobile Tracker";
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse an uncompressed packet with negative altitude");
+ok(sprintf('%.5f', $h{'altitude'}), "-24.07920", "incorrect negative altitude (uncompressed packet)");
 
 # rather basic position packet
 %h = (); # clean up

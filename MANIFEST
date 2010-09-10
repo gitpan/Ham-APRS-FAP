@@ -25,4 +25,5 @@ t/52decode-beacon.t
 t/53decode-tlm.t
 t/60binary-clean.t
 t/90check_ax25_call.t
+t/91aprsis_paths.t
 META.yml                                 Module meta-data (added by MakeMaker)

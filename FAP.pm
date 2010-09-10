@@ -108,7 +108,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.16';
+our $VERSION = '1.17';
 
 
 # Preloaded methods go here.
@@ -299,7 +299,7 @@ sub mice_mbits_to_message($) {
 # to APRS symbols. Overlay characters (z) are
 # not handled here
 my %dstsymbol = (
-	'BB' => q(/!), 'BC' => q(/'), 'BD' => q(/#), 'BE' => q(/$),
+	'BB' => q(/!), 'BC' => q(/"), 'BD' => q(/#), 'BE' => q(/$),
 	'BF' => q(/%), 'BG' => q(/&), 'BH' => q(/'), 'BI' => q!/(!,
 	'BJ' => q!/)!, 'BK' => q(/*), 'BL' => q(/+), 'BM' => q(/,),
 	'BN' => q(/-), 'BO' => q(/.), 'BP' => q(//),
@@ -1191,13 +1191,17 @@ sub _comments_to_decimal($$$) {
 	}
 
 	# Check for !DAO!, take the last occurrence (per recommendation)
-        if ($rest =~ /^(.*)\!([\x21-\x7b][\x20-\x7b]{2})\!(.*?)$/o) {
-                my $daofound = _dao_parse($2, $srccallsign, $rethash);
-                if ($daofound == 1) {
-                        $rest = $1 . $3;
-                }
-        }
-
+	if ($rest =~ /^(.*)\!([\x21-\x7b][\x20-\x7b]{2})\!(.*?)$/o) {
+		my $daofound = _dao_parse($2, $srccallsign, $rethash);
+		if ($daofound == 1) {
+			$rest = $1 . $3;
+		}
+	}
+	
+	# Strip a / or a ' ' from the beginning of a comment
+	# (delimiter after PHG or other data stuffed within the comment)
+	$rest =~ s/^[\/\s]//;
+	
 	# Save the rest as a separate comment, if
 	# anything is left (trim unprintable chars
 	# out first and white space from both ends)
@@ -2444,15 +2448,23 @@ sub parseaprs($$;%) {
 			}
 		}
 	} else {
+		my $seen_qconstr = 0;
+		
 		foreach my $digi (@pathcomponents) {
 			# From the internet. Apply the same checks as for
-			# APRS-IS packet originator.
+			# APRS-IS packet originator. Allow long hexadecimal IPv6
+			# address after the Q construct.
 			if ($digi =~ /^([A-Z0-9a-z-]{1,9})(\*|)$/o) {
 				push(@digipeaters, { 'call' => $1,
 					'wasdigied' => ($2 eq '*') ? 1 : 0 });
+				$seen_qconstr = 1 if ($1 =~ /^q..$/);
 			} else {
-				_a_err($rethash, 'digicall_badchars');
-				return 0;
+				if ($seen_qconstr && $digi =~ /^([0-9A-F]{32})$/) {
+					push(@digipeaters, { 'call' => $1, 'wasdigied' => 0 });
+				} else {
+					_a_err($rethash, 'digicall_badchars');
+					return 0;
+				}
 			}
 		}
 	}
@@ -3375,9 +3387,13 @@ __END__
 
 APRS specification 1.0.1, L<http://www.tapr.org/aprs_working_group.html>
 
-APRS addendums, e.g. L<http://web.usna.navy.mil/~bruninga/aprs/aprs11.html>
+APRS addendums, e.g. L<http://www.aprs.org/aprs11.html>
 
 The source code of this module - there are some undocumented features.
+
+libfap, a C library port of this module, L<http://pakettiradio.net/libfap/>
+
+Python bindings for libfap, L<http://github.com/kd7lxl/python-libfap>
 
 =head1 AUTHORS
 
