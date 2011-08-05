@@ -27,6 +27,9 @@ mic-e and compressed location packets, NMEA location packets,
 objects, items, messages, telemetry and most weather packets. It is
 stable and fast enough to parse the APRS-IS stream in real time.
 
+The package also contains the Ham::APRS::IS module which, in turn,
+is an APRS-IS client library.
+
 =head1 DESCRIPTION
 
 Unless a debugging mode is enabled, all errors and warnings are reported
@@ -108,7 +111,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.17';
+our $VERSION = '1.18';
 
 
 # Preloaded methods go here.
@@ -620,12 +623,16 @@ sub count_digihops($) {
 # Return a unix timestamp based on an
 # APRS six (+ one char for type) character timestamp.
 # If an invalid timestamp is given, return 0.
-sub _parse_timestamp($) {
+sub _parse_timestamp($$) {
+	my($options, $stamp) = @_;
+	
 	# Check initial format
-	return 0 if ($_[0] !~ /^(\d{2})(\d{2})(\d{2})(z|h|\/)$/o);
+	return 0 if ($stamp !~ /^(\d{2})(\d{2})(\d{2})(z|h|\/)$/o);
+	
+	return "$1$2$3" if ($options->{'raw_timestamp'});
 	
 	my $stamptype = $4;
-
+	
 	if ($stamptype eq 'h') {
 		# HMS format
 		my $hour = $1;
@@ -744,7 +751,7 @@ sub _cleanup_comment($)
 # (resolution in longitude gets better as you get closer to the poles).
 sub _get_posresolution($)
 {
-	return $knot_to_kmh * 1000 * 10 ** (-1 * $_[0]);
+	return $knot_to_kmh * ($_[0] <= -2 ? 600 : 1000) * 10 ** (-1 * $_[0]);
 }
 
 
@@ -877,12 +884,9 @@ sub _get_symbol_fromdst($) {
 
 
 # Parse an NMEA location
-sub _nmea_to_decimal($$$$) {
-	#(substr($body, 1), $srccallsign, $dstcallsign, \%poshash) 
-	my $body = shift @_;
-	my $srccallsign = shift @_;
-	my $dstcallsign = shift @_;
-	my $rethash = shift @_;
+sub _nmea_to_decimal($$$$$) {
+	#(substr($body, 1), $srccallsign, $dstcallsign, \%poshash)
+	my($options, $body, $srccallsign, $dstcallsign, $rethash) = @_;
 
 	if ($debug > 1) {
 		# print packet, after stripping control chars
@@ -1049,7 +1053,7 @@ sub _nmea_to_decimal($$$$) {
 		# the time and convert it to timestamp.
 		# But before that, remove a possible decimal part
 		$nmeafields[1] =~ s/\.\d+$//;
-		$rethash->{'timestamp'} = _parse_timestamp($nmeafields[1] . 'h');
+		$rethash->{'timestamp'} = _parse_timestamp($options, $nmeafields[1] . 'h');
 		if ($rethash->{'timestamp'} == 0) {
 			_a_err($rethash, 'timestamp_inv_gpgga');
 			return 0;
@@ -1101,7 +1105,7 @@ sub _nmea_to_decimal($$$$) {
 		# But before that, remove a possible decimal part
 		if (@nmeafields >= 6) {
 			$nmeafields[5] =~ s/\.\d+$//;
-			$rethash->{'timestamp'} = _parse_timestamp($nmeafields[5] . 'h');
+			$rethash->{'timestamp'} = _parse_timestamp($options, $nmeafields[5] . 'h');
 			if ($rethash->{'timestamp'} == 0) {
 				_a_err($rethash, 'timestamp_inv_gpgll');
 				return 0;
@@ -1198,6 +1202,9 @@ sub _comments_to_decimal($$$) {
 		}
 	}
 	
+	# Check for new-style base-91 comment telemetry
+	$rest = _comment_telemetry($rethash, $rest);
+	
 	# Strip a / or a ' ' from the beginning of a comment
 	# (delimiter after PHG or other data stuffed within the comment)
 	$rest =~ s/^[\/\s]//;
@@ -1214,10 +1221,8 @@ sub _comments_to_decimal($$$) {
 }
 
 # Parse an object
-sub _object_to_decimal($$$) {
-	my $packet = shift @_;
-	my $srccallsign = shift @_;
-	my $rethash = shift @_;
+sub _object_to_decimal($$$$) {
+	my($options, $packet, $srccallsign, $rethash) = @_;
 
 	# Minimum length for an object is 31 characters
 	# (or 46 characters for non-compressed)
@@ -1245,7 +1250,7 @@ sub _object_to_decimal($$$) {
 	# Check the timestamp for validity and convert
 	# to UNIX epoch. If the timestamp is invalid, set it
 	# to zero.
-	$rethash->{'timestamp'} = _parse_timestamp($timestamp);
+	$rethash->{'timestamp'} = _parse_timestamp($options, $timestamp);
 	if ($rethash->{'timestamp'} == 0) {
 		_a_warn($rethash, 'timestamp_inv_obj');
 	}
@@ -1285,10 +1290,8 @@ sub _object_to_decimal($$$) {
 # Parse a status report. Only timestamps
 # and text report are supported. Maidenhead,
 # beam headings and symbols are not.
-sub _status_parse($$$) {
-	my $packet = shift @_;
-	my $srccallsign = shift @_;
-	my $rethash = shift @_;
+sub _status_parse($$$$) {
+	my($options, $packet, $srccallsign, $rethash) = @_;
 
 	# Remove CRs, LFs and trailing spaces
 	$packet =~ tr/\r\n//d;
@@ -1296,7 +1299,7 @@ sub _status_parse($$$) {
 
 	# Check for a timestamp
 	if ($packet =~ /^(\d{6}z)/o) {
-		$rethash->{'timestamp'} = _parse_timestamp($1);
+		$rethash->{'timestamp'} = _parse_timestamp({}, $1);
 		_a_warn($rethash, 'timestamp_inv_sta') if ($rethash->{'timestamp'} == 0);
 		$packet = substr($packet, 7);
 	}
@@ -1389,6 +1392,40 @@ sub _message_parse($$$) {
 	return 0;
 }
 
+#
+sub _comment_telemetry($$)
+{
+	my($rethash, $rest) = @_;
+	 
+	if ($rest =~ /^(.*)\|([!-{]{2})([!-{]{2})([!-{]{2}|)([!-{]{2}|)([!-{]{2}|)([!-{]{2}|)([!-{]{2}|)\|(.*)$/) {
+		$rest = $1 . $9;
+		$rethash->{'telemetry'} = {
+			'seq' => (ord(substr($2, 0, 1)) - 33) * 91 +
+				(ord(substr($2, 1, 1)) - 33),
+			'vals' => [
+				(ord(substr($3, 0, 1)) - 33) * 91 +
+				(ord(substr($3, 1, 1)) - 33),
+				$4 ne '' ? (ord(substr($4, 0, 1)) - 33) * 91 +
+				(ord(substr($4, 1, 1)) - 33) : undef,
+				$5 ne '' ? (ord(substr($5, 0, 1)) - 33) * 91 +
+				(ord(substr($5, 1, 1)) - 33) : undef,
+				$6 ne '' ? (ord(substr($6, 0, 1)) - 33) * 91 +
+				(ord(substr($6, 1, 1)) - 33) : undef,
+				$7 ne '' ? (ord(substr($7, 0, 1)) - 33) * 91 +
+				(ord(substr($7, 1, 1)) - 33) : undef,
+			]
+		};
+		if ($8 ne '') {
+			# bits: first, decode the base-91 integer
+			my $bitint = (ord(substr($8, 0, 1)) - 33) * 91 +
+				(ord(substr($8, 1, 1)) - 33);
+			# then, decode the 8 bits of telemetry
+			$rethash->{'telemetry'}->{'bits'} = unpack('B8', pack('C', $bitint));
+		}
+	}
+	
+	return $rest;
+}
 
 # Parse an item
 sub _item_to_decimal($$$) {
@@ -1777,6 +1814,23 @@ sub _mice_to_decimal($$$$$) {
 	# below sea.
 	if (length($packet) > 8) {
 		my $rest = substr($packet, 8);
+		
+		# check for Mic-E Telemetry Data
+		if ($rest =~ /^'([0-9a-f]{2})([0-9a-f]{2})(.*)$/i) {
+			# two hexadecimal values: channels 1 and 3
+			$rest = $3;
+			$rethash->{'telemetry'} = {
+				'vals' => [ unpack('C*', pack('H*', $1 . '00' . $2)) ]
+			};
+		}
+		if ($rest =~ /^‘([0-9a-f]{10})(.*)$/i) {
+			# five channels:
+			$rest = $2;
+			$rethash->{'telemetry'} = {
+				'vals' => [ unpack('C*', pack('H*', $1)) ]
+			};
+		}
+		
 		# check for altitude
 		if ($rest =~ /^(.*?)([\x21-\x7b])([\x21-\x7b])([\x21-\x7b])\}(.*)$/o) {
 			$rethash->{'altitude'} = (
@@ -1793,8 +1847,11 @@ sub _mice_to_decimal($$$$$) {
                                 $rest = $1 . $3;
                         }
                 }
-
-		# If anything is left, store it as a comment
+                
+                # Check for new-style base-91 comment telemetry
+                $rest = _comment_telemetry($rethash, $rest);
+                
+                # If anything is left, store it as a comment
 		# after removing non-printable ASCII
 		# characters
 		if (length($rest) > 0) {
@@ -2337,6 +2394,9 @@ mic-e fields, but some of the data is still recovable, decode
 the packet instead of reporting an error. At least aprsd produces
 these packets. 1: try to decode, 0: report an error (default).
 
+B<raw_timestamp> - Timestamps within the packets are not decoded
+to an UNIX timestamp, but are returned as raw strings.
+
 Example:
 
 my %hash;
@@ -2510,7 +2570,7 @@ sub parseaprs($$;%) {
 			if ($packettype eq '/' || $packettype eq '@') {
 				# With a prepended timestamp, check it and jump over.
 				# If the timestamp is invalid, it will be set to zero.
-				$rethash->{'timestamp'} = _parse_timestamp(substr($body, 1, 7));
+				$rethash->{'timestamp'} = _parse_timestamp(\%options, substr($body, 1, 7));
 				if ($rethash->{'timestamp'} == 0) {
 					_a_warn($rethash, 'timestamp_inv_loc');
 				}
@@ -2578,7 +2638,7 @@ sub parseaprs($$;%) {
 	} elsif ($packettype eq ';') {
 		if ($paclen >= 31) {
 			$rethash->{'type'} = 'object';
-			return _object_to_decimal($body, $srccallsign, $rethash);
+			return _object_to_decimal(\%options, $body, $srccallsign, $rethash);
 		}
 
 	# NMEA data
@@ -2588,7 +2648,7 @@ sub parseaprs($$;%) {
 			# dstcallsign can contain the APRS symbol to use,
 			# so read that one too
 			$rethash->{'type'} = 'location';
-			return _nmea_to_decimal(substr($body, 1), $srccallsign, $dstcallsign, $rethash);
+			return _nmea_to_decimal(\%options, substr($body, 1), $srccallsign, $dstcallsign, $rethash);
 		} elsif (substr($body, 0, 5) eq '$ULTW') {
 			$rethash->{'type'} = 'wx';
 			return _wx_parse_peet_packet(substr($body, 5), $srccallsign, $rethash);
@@ -2622,7 +2682,7 @@ sub parseaprs($$;%) {
 		# we can live with empty status reports
 		if ($paclen >= 1) {
 			$rethash->{'type'} = 'status';
-			return _status_parse(substr($body, 1), $srccallsign, $rethash);
+			return _status_parse(\%options, substr($body, 1), $srccallsign, $rethash);
 		}
 	
 	# Telemetry

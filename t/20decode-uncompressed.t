@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 28 + 5 + 3 + 4 + 2 + 3 };
+BEGIN { plan tests => 28 + 5 + 5 + 3 + 4 + 2 + 3 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $comment = "RELAY,WIDE, OH2AP Jarvenpaa";
@@ -52,6 +52,17 @@ ok(sprintf('%.4f', $h{'latitude'}), "-60.4167", "incorrect latitude parsing (sou
 ok(sprintf('%.4f', $h{'longitude'}), "-25.0833", "incorrect longitude parsing (western)");
 ok(sprintf('%.0f', $h{'posambiguity'}), "3", "incorrect position ambiguity");
 ok(sprintf('%.0f', $h{'posresolution'}), "18520", "incorrect position resolution");
+
+# and the same, with even more ambiguity
+%h = (); # clean up
+$aprspacket = "$srccall>$dstcall,OH2RDG*,WIDE:!60  .  S/025  .  W#PHG$phg$comment";
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse a very ambiguous packet (southwest)");
+ok(sprintf('%.4f', $h{'latitude'}), "-60.5000", "incorrect latitude parsing (southern)");
+ok(sprintf('%.4f', $h{'longitude'}), "-25.5000", "incorrect longitude parsing (western)");
+ok(sprintf('%.0f', $h{'posambiguity'}), "4", "incorrect position ambiguity");
+ok(sprintf('%.0f', $h{'posresolution'}), "111120", "incorrect position resolution");
 
 # and the same with "last resort" !-location parsing
 %h = (); # clean up

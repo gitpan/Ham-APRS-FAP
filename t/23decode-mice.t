@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 50 + 8};
+BEGIN { plan tests => 50 + 8 + 7 + 5 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH7LZB-13";
@@ -118,5 +118,55 @@ ok($h{'body'}, $body, "incorrect body parsing");
 ok($h{'type'}, 'location', "incorrect packet type parsing");
 
 ok($h{'comment'}, undef, "incorrect comment parsing");
+
+
+#
+#### test decoding a packet with 5-channel Mic-E Telemetry
+#
+ 
+$srccall = "OZ2BRN-4";
+$dstcall = "5U2V08";
+$header = "$srccall>$dstcall,WIDE2-1,qAo,OH7LZB";
+my $telemetry = "‘102030FFff";
+$comment = "commeeeent";
+$body = "`c51!f?>/$telemetry $comment";
+$aprspacket = "$header:$body";
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse mic-e packet with 5-ch telemetry");
+
+ok($h{'comment'}, $comment, "incorrect comment parsing");
+
+my(@v) = @{ $h{'telemetry'}{'vals'} };
+ok($v[0], "16", "wrong value 0 parsed from telemetry");
+ok($v[1], "32", "wrong value 1 parsed from telemetry");
+ok($v[2], "48", "wrong value 2 parsed from telemetry");
+ok($v[3], "255", "wrong value 3 parsed from telemetry");
+ok($v[4], "255", "wrong value 4 parsed from telemetry");
+
+
+#
+#### test decoding a packet with 2-channel Mic-E Telemetry
+#
+ 
+$srccall = "OZ2BRN-4";
+$dstcall = "5U2V08";
+$header = "$srccall>$dstcall,WIDE2-1,qAo,OH7LZB";
+$telemetry = "'1020";
+$comment = "commeeeent";
+$body = "`c51!f?>/$telemetry $comment";
+$aprspacket = "$header:$body";
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse mic-e packet with 2-ch telemetry");
+
+ok($h{'comment'}, $comment, "incorrect comment parsing");
+
+@v = @{ $h{'telemetry'}{'vals'} };
+ok($v[0], "16", "wrong value 0 parsed from 2-ch telemetry");
+ok($v[1], "0", "wrong value 1 parsed from 2-ch telemetry");
+ok($v[2], "32", "wrong value 2 parsed from 2-ch telemetry");
 
 

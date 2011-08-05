@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 49 + 7 };
+BEGIN { plan tests => 49 + 1 + 7 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH2KKU-15";
@@ -56,8 +56,9 @@ ok($h{'altitude'}, undef, "incorrect altitude");
 $srccall = "OH2LCQ-10";
 $dstcall = "APZMDR";
 $header = "$srccall>$dstcall,WIDE3-2,qAo,OH2MQK-1";
+# some telemetry in the comment
 $comment = "Tero, Green Volvo 960, GGL-880";
-$body = "!//zPHTfVv>!V_ $comment";
+$body = "!//zPHTfVv>!V_ $comment|!!!!!!!!!!!!!!|";
 $aprspacket = "$header:$body";
 %h = ();
 $retval = parseaprs($aprspacket, \%h);
@@ -97,6 +98,17 @@ ok(sprintf("%.2f", $h{'speed'}), "107.57", "incorrect speed");
 ok($h{'course'}, 360, "incorrect course");
 ok($h{'altitude'}, undef, "incorrect altitude");
 
+### short compressed packet without speed, altitude or course.
+### The APRS 1.01 spec is clear on this - says that compressed packet
+### is always 13 bytes long. Must not decode, even though this packet
+### is otherwise valid. It's just missing 2 bytes of padding.
+
+$aprspacket = 'KJ4ERJ-AL>APWW05,TCPIP*,qAC,FOURTH:@075111h/@@.Y:*lol ';
+%h = ();
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 0, "erroneously decoded a too short compressed packet without speed/course/alt/range");
+
 ### compressed packet with weather
 
 $aprspacket = 'SV4IKL-2>APU25N,WIDE2-2,qAR,SV6EXB-1:@011444z/:JF!T/W-_e!bg000t054r000p010P010h65b10073WS 2300 {UIV32N}';
@@ -106,7 +118,7 @@ $retval = parseaprs($aprspacket, \%h);
 ok($retval, 1, "failed to parse a compressed packet with weather data");
 ok($h{'symboltable'}, '/', "incorrect symboltable parsing (compressed+wx)");
 ok($h{'symbolcode'}, '_', "incorrect symbolcode parsing (compressed+wx)");
-ok($h{'comment'}, 'WS 2300 {UIV32N}', "incorrect symbolcode parsing (compressed+wx)");
+ok($h{'comment'}, 'WS 2300 {UIV32N}', "incorrect comment parsing (compressed+wx)");
 
 ok($h{'wx'}->{'temp'}, "12.2", "incorrect temperature parsing");
 ok($h{'wx'}->{'humidity'}, 65, "incorrect humidity parsing");

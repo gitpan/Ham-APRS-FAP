@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Ham-APRS-FAP
-version:             1.17
+version:             1.18
 abstract:            Finnish APRS Parser (Fabulous APRS Parser)
 license:             perl
 author:              

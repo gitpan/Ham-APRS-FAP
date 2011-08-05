@@ -10,7 +10,9 @@ use Ham::APRS::FAP qw(parseaprs);
 my $srccall = "OH7FDN";
 my $dstcall = "APZMDR";
 my $header = "$srccall>$dstcall,OH7AA-1*,WIDE2-1,qAR,OH7AA";
-my $body = "!6253.52N/02739.47E>036/010/A=000465";
+# The comment field contains telemetry just to see that it doesn't break
+# the actual position parsing.
+my $body = "!6253.52N/02739.47E>036/010/A=000465 |!!!!!!!!!!!!!!|";
 my $aprspacket = "$header:$body";
 my %h;
 my $retval = parseaprs($aprspacket, \%h);
