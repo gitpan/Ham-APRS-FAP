@@ -111,7 +111,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.18';
+our $VERSION = '1.19';
 
 
 # Preloaded methods go here.
@@ -1420,7 +1420,7 @@ sub _comment_telemetry($$)
 			my $bitint = (ord(substr($8, 0, 1)) - 33) * 91 +
 				(ord(substr($8, 1, 1)) - 33);
 			# then, decode the 8 bits of telemetry
-			$rethash->{'telemetry'}->{'bits'} = unpack('B8', pack('C', $bitint));
+			$rethash->{'telemetry'}->{'bits'} = unpack('b8', pack('C', $bitint));
 		}
 	}
 	
@@ -3463,9 +3463,9 @@ Heikki Hannikainen, OH7LZB E<lt>hessu@hes.iki.fiE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2005-2010 by Tapio Sokura
+Copyright 2005-2012 by Tapio Sokura
 
-Copyright 2007-2010 by Heikki Hannikainen
+Copyright 2007-2012 by Heikki Hannikainen
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

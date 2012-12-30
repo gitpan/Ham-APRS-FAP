@@ -2,8 +2,9 @@
 # test mic-e telemetry decoding
 
 use Test;
+#use Data::Dumper;
 
-BEGIN { plan tests => 9 + 8 };
+BEGIN { plan tests => 9 + 8 + 2 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH7LZB-13";
@@ -59,8 +60,10 @@ ok($v[3], undef, "wrong value 3 parsed from telemetry");
 ok($v[4], undef, "wrong value 4 parsed from telemetry");
 
 ## harder one:
-#$aprspacket = "N6BG-1>S6QTUX:`+,^l!cR/'\";z}||!\$:'e'b|!w>f!|3";
-#$retval = parseaprs($aprspacket, \%h);
+$aprspacket = "N6BG-1>S6QTUX:`+,^l!cR/'\";z}||ss11223344bb!\"|!w>f!|3";
+$retval = parseaprs($aprspacket, \%h);
 
-#ok($retval, 1, "failed to parse mic-e packet with 5-ch telemetry");
-#ok($h{'comment'}, $comment, "incorrect comment parsing");
+#warn Dumper(\%h);
+
+ok($retval, 1, "failed to parse mic-e packet with 5-ch telemetry");
+ok($h{'telemetry'}{'bits'}, '10000000', "wrong bits parsed from telemetry");

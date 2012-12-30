@@ -141,7 +141,7 @@ Revision history for Perl extension Ham::APRS::FAP.
 	- Fixed destination callsign based symbol selection for 'BC'
 	- Updated URLs to aprs.org, etc
 
-1.18  Fri Aug  5 08:39:49 EEST 2011 - Hessu, OH7LZB
+1.18  Fri Aug  5 08:39:49 EEST 2011 - Hessu, OH7LZB and Tapio, OH2KKU
 	- Added Ham::APRS::IS module - an APRS-IS client library
 	- Fixed position resolution calculation for whole degree cases,
 	  and added tests
@@ -149,4 +149,7 @@ Revision history for Perl extension Ham::APRS::FAP.
 	  in all but status packets
 	- Added tests for timestamp and status message parsing
 	- Added support for new base91 comment telemetry
+
+1.19  Sun Dec 30 13:13:19 EET 2012 - Hessu, OH7LZB
+	- Fixed Binary Value bit order in base91 comment telemetry
 

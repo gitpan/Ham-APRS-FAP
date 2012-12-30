@@ -1,16 +1,24 @@
 --- #YAML:1.0
-name:                Ham-APRS-FAP
-version:             1.18
-abstract:            Finnish APRS Parser (Fabulous APRS Parser)
-license:             perl
-author:              
+name:               Ham-APRS-FAP
+version:            1.19
+abstract:           Finnish APRS Parser (Fabulous APRS Parser)
+author:
     - Tapio Sokura <tapio.sokura@iki.fi>, Heikki Hannikainen
-generated_by:        ExtUtils::MakeMaker version 6.42
-distribution_type:   module
-requires:     
-    Date::Calc:                    5.00
-    Math::Trig:                    1.00
-    Test::More:                    0.1
+license:            perl
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
+requires:
+    Date::Calc:  5.00
+    Math::Trig:  1.00
+    Test::More:  0.1
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.55_02
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4
