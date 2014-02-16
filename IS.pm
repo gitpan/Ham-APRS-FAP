@@ -410,6 +410,16 @@ sub aprspass($)
 	return (($h ^ 29666) & 65535);
 }
 
+=head1 sock()
+
+Returns the perl socket used on the connection.
+
+=cut
+
+sub sock {
+	my $self = shift;
+	return $self->{sock};
+}
 
 1;
 __END__

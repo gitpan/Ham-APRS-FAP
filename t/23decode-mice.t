@@ -4,7 +4,7 @@
 
 use Test;
 
-BEGIN { plan tests => 50 + 8 + 7 + 5 };
+BEGIN { plan tests => 50 + 8 + 7 + 5 + 9 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH7LZB-13";
@@ -169,4 +169,23 @@ ok($v[0], "16", "wrong value 0 parsed from 2-ch telemetry");
 ok($v[1], "0", "wrong value 1 parsed from 2-ch telemetry");
 ok($v[2], "32", "wrong value 2 parsed from 2-ch telemetry");
 
+
+#
+#### test decoding a packet which has had a binary byte removed
+#
+
+$comment = ']Greetings via ISS=';
+$aprspacket = "KD0KZE>TUPX9R,RS0ISS*,qAR,K0GDI-6:'yaIl -/$comment";
+%h = ();
+$retval = parseaprs($aprspacket, \%h, accept_broken_mice => 1);
+
+ok($retval, 1, "failed to parse mangled mic-e packet");
+ok(sprintf('%.4f', $h{'latitude'}), "45.1487", "incorrect latitude parsing");
+ok(sprintf('%.4f', $h{'longitude'}), "-93.1575", "incorrect longitude parsing");
+ok($h{'symboltable'}, '/', "wrong symbol table in mangled mic-e packet");
+ok($h{'symbolcode'}, '-', "wrong symbol code in mangled mic-e packet");
+ok($h{'comment'}, $comment, "incorrect comment parsing");
+ok(defined $h{'course'}, "", "found course from a mangled mic-e packet");
+ok(defined $h{'speed'}, "", "found speed from a mangled mic-e packet");
+ok($h{'mice_mangled'}, 1, "mic-e packet demangling not indicated");
 

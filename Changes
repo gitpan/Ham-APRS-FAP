@@ -153,3 +153,15 @@ Revision history for Perl extension Ham::APRS::FAP.
 1.19  Sun Dec 30 13:13:19 EET 2012 - Hessu, OH7LZB
 	- Fixed Binary Value bit order in base91 comment telemetry
 
+1.20  Sun Feb 16 16:13:58 EET 2014 - Hessu, OH7LZB
+	- Mic-E: Catch invalid symbol table errors even in broken mic-e
+	  packets
+	- Mic-E: Indicate demangled packets with a 'mice_mangled' flag
+	- Mic-E: If a mic-e packet was demangled, do not decode speed or
+	  course which were lost in transit
+	- Mic-E: Obtain correct symbol table identifier after demangling
+	- Mic-E: Added tests for demangled case
+	- Added sock() method to IS.pm for obtaining socket
+	- Comment telemetry: Decode before DAO to avoid stripping "DAO"
+	  from middle of telemetry
+

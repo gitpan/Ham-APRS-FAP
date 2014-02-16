@@ -4,7 +4,7 @@
 use Test;
 #use Data::Dumper;
 
-BEGIN { plan tests => 9 + 8 + 2 };
+BEGIN { plan tests => 9 + 8 + 2 + 2 };
 use Ham::APRS::FAP qw(parseaprs);
 
 my $srccall = "OH7LZB-13";
@@ -67,3 +67,13 @@ $retval = parseaprs($aprspacket, \%h);
 
 ok($retval, 1, "failed to parse mic-e packet with 5-ch telemetry");
 ok($h{'telemetry'}{'bits'}, '10000000', "wrong bits parsed from telemetry");
+
+## one to confuse with !DAO!
+$tlm = '|!wEU!![S|';
+
+$aprspacket = "$header:$body $comment $tlm";
+$retval = parseaprs($aprspacket, \%h);
+
+ok($retval, 1, "failed to parse mic-e packet with DAO-looking comment telemetry");
+ok($h{'comment'}, $comment, "incorrect comment parsing");
+

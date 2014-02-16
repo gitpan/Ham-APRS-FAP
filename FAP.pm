@@ -111,7 +111,7 @@ our @EXPORT_OK = (
 ##	
 ##);
 
-our $VERSION = '1.19';
+our $VERSION = '1.20';
 
 
 # Preloaded methods go here.
@@ -1194,6 +1194,9 @@ sub _comments_to_decimal($$$) {
 		$rest = $1 . $3;
 	}
 
+	# Check for new-style base-91 comment telemetry
+	$rest = _comment_telemetry($rethash, $rest);
+	
 	# Check for !DAO!, take the last occurrence (per recommendation)
 	if ($rest =~ /^(.*)\!([\x21-\x7b][\x20-\x7b]{2})\!(.*?)$/o) {
 		my $daofound = _dao_parse($2, $srccallsign, $rethash);
@@ -1201,9 +1204,6 @@ sub _comments_to_decimal($$$) {
 			$rest = $1 . $3;
 		}
 	}
-	
-	# Check for new-style base-91 comment telemetry
-	$rest = _comment_telemetry($rethash, $rest);
 	
 	# Strip a / or a ' ' from the beginning of a comment
 	# (delimiter after PHG or other data stuffed within the comment)
@@ -1656,7 +1656,14 @@ sub _mice_to_decimal($$$$$) {
 		if (($options->{'accept_broken_mice'})
 		    && $packet =~ s/^([\x26-\x7f][\x26-\x61][\x1c-\x7f]{2})\x20([\x21-\x7b\x7d][\/\\A-Z0-9])(.*)/$1\x20\x20$2$3/o) {
 			$mice_fixed = 1;
+			# Now the symbol table identifier is again in the correct spot...
+			$symboltable = substr($packet, 7, 1);
+			if ($symboltable !~ /^[\/\\A-Z0-9]$/) {
+				_a_err($rethash, 'sym_inv_table');
+				return 0;
+			}
 		} else {
+			# Get a more precise error message for invalid symbol table
 			if ($symboltable !~ /^[\/\\A-Z0-9]$/) {
 				_a_err($rethash, 'sym_inv_table');
 			} else {
@@ -1782,26 +1789,29 @@ sub _mice_to_decimal($$$$$) {
 	# Longitude is finally complete, so store it
 	$rethash->{'longitude'} = $longitude;
 
-	# Now onto speed and course
-	my $speed = (ord(substr($packet, 3, 1)) - 28) * 10;
-	my $coursespeed = ord(substr($packet, 4, 1)) - 28;
-	my $coursespeedtmp = int($coursespeed / 10);
-	$speed += $coursespeedtmp;
-	$coursespeed -= $coursespeedtmp * 10;
-	my $course = 100 * $coursespeed;
-	$course += ord(substr($packet, 5, 1)) - 28;
-	# do some important adjustements
-	if ($speed >= 800) {
-		$speed -= 800;
-	}
-	if ($course >= 400) {
-		$course -= 400;
-	}
-	# convert speed to km/h and store
-	$rethash->{'speed'} = $speed * $knot_to_kmh;
-	# also zero course is saved, which means unknown
-	if ($course >= 0) {
-		$rethash->{'course'} = $course;
+	# Now onto speed and course.
+	# If the packet has had a mic-e fix applied, course and speed are likely to be off.
+	if (!$mice_fixed) {
+		my $speed = (ord(substr($packet, 3, 1)) - 28) * 10;
+		my $coursespeed = ord(substr($packet, 4, 1)) - 28;
+		my $coursespeedtmp = int($coursespeed / 10);
+		$speed += $coursespeedtmp;
+		$coursespeed -= $coursespeedtmp * 10;
+		my $course = 100 * $coursespeed;
+		$course += ord(substr($packet, 5, 1)) - 28;
+		# do some important adjustements
+		if ($speed >= 800) {
+			$speed -= 800;
+		}
+		if ($course >= 400) {
+			$course -= 400;
+		}
+		# convert speed to km/h and store
+		$rethash->{'speed'} = $speed * $knot_to_kmh;
+		# also zero course is saved, which means unknown
+		if ($course >= 0) {
+			$rethash->{'course'} = $course;
+		}
 	}
 
 	# save the symbol table and code
@@ -1840,6 +1850,9 @@ sub _mice_to_decimal($$$$$) {
 			$rest = $1 . $5;
 		}
 
+                # Check for new-style base-91 comment telemetry
+                $rest = _comment_telemetry($rethash, $rest);
+                
                 # Check for !DAO!, take the last occurrence (per recommendation)
                 if ($rest =~ /^(.*)\!([\x21-\x7b][\x20-\x7b]{2})\!(.*?)$/o) {
                         my $daofound = _dao_parse($2, $srccallsign, $rethash);
@@ -1847,9 +1860,6 @@ sub _mice_to_decimal($$$$$) {
                                 $rest = $1 . $3;
                         }
                 }
-                
-                # Check for new-style base-91 comment telemetry
-                $rest = _comment_telemetry($rethash, $rest);
                 
                 # If anything is left, store it as a comment
 		# after removing non-printable ASCII
@@ -1859,9 +1869,10 @@ sub _mice_to_decimal($$$$$) {
 		}
 	}
 	
-	#if ($mice_fixed) {
-	#	warn "$srccallsign: fixed packet was parsed\n";
-	#}
+	if ($mice_fixed) {
+		$rethash->{'mice_mangled'} = 1;
+		#warn "$srccallsign: fixed packet was parsed\n";
+	}
 	
 	return 1;
 }
@@ -2393,6 +2404,8 @@ B<accept_broken_mice> - if the packet contains corrupted
 mic-e fields, but some of the data is still recovable, decode
 the packet instead of reporting an error. At least aprsd produces
 these packets. 1: try to decode, 0: report an error (default).
+Packets which have been successfully demangled will contain the
+B<mice_mangled> flag.
 
 B<raw_timestamp> - Timestamps within the packets are not decoded
 to an UNIX timestamp, but are returned as raw strings.
